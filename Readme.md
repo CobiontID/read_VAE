@@ -13,7 +13,7 @@ Note that k-mers will not be canonicalised.
 ## Dependencies
 Rust (see https://www.rust-lang.org/tools/install)
 
-needletail = "0.4"
-fnv = "1.0.7"
-csv
-clap
+- needletail = "0.4"
+- fnv = "1.0.7"
+- csv
+- clap
