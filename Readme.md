@@ -17,3 +17,5 @@ Rust (see https://www.rust-lang.org/tools/install)
 - fnv = "1.0.7"
 - csv
 - clap
+
+To compile, run `cargo build --release`
