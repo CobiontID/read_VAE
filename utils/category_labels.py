@@ -1,5 +1,6 @@
 import numpy as np
 import argparse
+from itertools import combinations
 
 parser = argparse.ArgumentParser(
     description='Generate categorical integer labels by sequence ids. Unlabelled identifiers are assigned 0, the nth set of sequences is assigned the label n')
@@ -30,8 +31,11 @@ for i, cat in enumerate(binfiles):
     np.put(mask, np.where([seqid in seq_set for seqid in ids]), [i+1])
 
 # Add bin for identifiers that appear in multiple sets.
-if len(set.intersection(*all_sets)) > 0:
-    np.put(mask, np.where([seqid in set.intersection(*all_sets) for seqid in ids]), [i+2])
+nt = lambda a, b: all_sets[a].intersection(all_sets[b])
+in_multiple = set().union(*[nt(*i) for i in combinations(range(i), 2)])
+
+if len(in_multiple) > 0:
+    np.put(mask, np.where([seqid in in_multiple for seqid in ids]), [i+2])
     print("Adding extra bin containing intersect of sets: {}".format(i+2))
 
 np.savetxt(outfile, mask, fmt='%i', delimiter="\n")
