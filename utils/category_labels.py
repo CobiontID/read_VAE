@@ -23,8 +23,15 @@ ids = [y for x in ids for y in x]
 mask = np.array(len(ids)*[0], dtype="int32")
 print(len(mask))
 
+all_sets = []
 for i, cat in enumerate(binfiles):
     seq_set = set([j.strip() for j in open(cat)])
+    all_sets.append(seq_set)
     np.put(mask, np.where([seqid in seq_set for seqid in ids]), [i+1])
+
+# Add bin for identifiers that appear in multiple sets.
+if len(set.intersection(*all_sets)) > 0:
+    np.put(mask, np.where([seqid in set.intersection(*all_sets) for seqid in ids]), [i+2])
+    print("Adding extra bin containing intersect of sets: {}".format(i+2))
 
 np.savetxt(outfile, mask, fmt='%i', delimiter="\n")
