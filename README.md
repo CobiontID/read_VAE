@@ -1,6 +1,6 @@
 # kmer_decomposition
 
-## Worflows
+## Workflows
 ### Read k-mer decomposition and visualisation
 ### Contig/scaffold k-mer decomposition and visualisation
 
