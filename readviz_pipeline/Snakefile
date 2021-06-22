@@ -138,6 +138,7 @@ rule read_unique_kmers:
         "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type)
     shell:
         """
+	mkdir -p unique_kmers/{seq_type}/k_{k_unique}/logs/
         bsub -G {user_group} -R "span[hosts=1] select[mem>8000] rusage[mem=8000]" -M8000 -q normal\
         -o unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.out \
         -e unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.err -J \"{params.jobhash}\" \
