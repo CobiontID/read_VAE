@@ -2,6 +2,7 @@
 
 ## Running the pipeline
 
+### Setup
 This set-up assumes that the script will be run on an LSF cluster.
 
 - Set up the configuration in <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/readviz_pipeline/config.yml">config.yml</a>
@@ -9,6 +10,7 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `sample_id`: The sample identifier (used to name output files)
      - `species_name`: The full species name 
      - `read_file`: Path to the file containing the reads to be analysed
+     
    - Base configuration:
      - `user_group`: User group to be used for LSF
      - `tetra_count_path`: Path to the k-mer counter executable
@@ -20,5 +22,7 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `cat_labeller_path`: Path to script for generating bins for reads from a continuous vector
      - `hextable_path`: Path to reference table for Hexamer/Hexsum
      - `conda_tf`: The conda environment used for the decomposition and visualisation steps. Required packages are specified in in <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/env_kmerviz.yaml">env_kmerviz.yaml</a>.
-- In a conda environment with <a href="https://snakemake.readthedocs.io/en/stable/">Snakemake</a> installed, run `Snakemake`
+
+### Run
+In a conda environment with <a href="https://snakemake.readthedocs.io/en/stable/">Snakemake</a> installed, run `Snakemake`
 
