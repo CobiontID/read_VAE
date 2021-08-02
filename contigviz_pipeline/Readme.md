@@ -5,7 +5,7 @@
 ### Setup
 This set-up assumes that the script will be run on an LSF cluster.
 
-- Set up the configuration in <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/readviz_pipeline/config.yml">config.yml</a>
+- Set up the configuration in <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/contigviz_pipeline/config.yml">config.yml</a>
   - Set up the sample to be run: 
      - `sample_id`: The sample identifier (used to name output files)
      - `species_name`: The full species name 
