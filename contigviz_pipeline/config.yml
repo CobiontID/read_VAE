@@ -1,0 +1,16 @@
+sample_id:  IcHarAxyr
+species_name: Harmonia axyridis
+contig_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/icHarAxyr1.p_ctg.fa
+contig_noseq: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/icHarAxyr1.p_ctg.noseq.gfa
+read_file: None
+assembler: hifiasm
+seq_type: p_ctg
+collapse_kmers: collapsed
+
+user_group: team301-grp
+fastk_path: /software/team301/user/cw21/fastk/
+hexamer_path: /software/team301/user/cw21/hexamer/hexsum
+hexamer_path: /software/team301/user/cw21/hexamer/hexsum
+tetra_count_path: /software/team301/user/cw21/kmer_counter/target/release/kmer-counter
+hextable_path: /software/team301/user/cw21/hexamer/cds.worm.hex
+conda_tf: /software/team301/user/cw21/conda/kmerviz
