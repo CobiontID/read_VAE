@@ -3,6 +3,10 @@ species_name: Harmonia axyridis
 contig_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/icHarAxyr1.p_ctg.fa
 contig_noseq: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/icHarAxyr1.p_ctg.noseq.gfa
 read_file: None
+
+pair_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/scaff/out.break.salsa/alignments_sorted.txt
+size_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/scaff/out.break.salsa/scaffolds_FINAL.fasta.chrom.sizes
+
 assembler: hifiasm
 seq_type: p_ctg
 collapse_kmers: collapsed
