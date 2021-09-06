@@ -17,7 +17,7 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `pair_file`: Pair file with scaffold contacts from SALSA, optional (if not using Hi-C, set None)
      - `size_file`: File with scaffold sizes from SALSA (if not using Hi-C, set None)
 
-- Base configuration:
+  - Base configuration:
      - `user_group`: User group to be used for LSF
      - `tetra_count_path`: Path to the k-mer counter executable
      - `fastk_path`: Base path to FastK and ProfMedianAll executables
