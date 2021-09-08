@@ -1,0 +1,256 @@
+# cw21@sanger.ac.uk
+
+import hashlib
+
+configfile: "config.yml"
+
+sample_id = config['sample_id']
+species_name = config['species_name']
+contig_file = config['contig_file']
+contig_noseq = config['contig_noseq']
+read_file = config['read_file']
+assembler = config['assembler']
+
+pair_file = config['pair_file']
+size_file = config['size_file']
+
+user_group = config['user_group']
+fastk_path = config['fastk_path']
+un_count_path = config['un_count_path']
+tetra_count_path = config['tetra_count_path']
+hexamer_path = config['hexamer_path']
+reduced_plot_path = config['reduced_plot_path']
+hic_link_path = config['hic_link_path']
+
+hextable_path = config['hextable_path']
+conda_tf = config['conda_tf']
+
+seq_type = config["seq_type"]
+collapsed = config["collapse_kmers"]
+
+contig_basename = contig_file.split("/")[-1]
+
+# Pipe either fasta or decompressed .fa.gz
+if (contig_basename[-2:] == "gz"):
+    piped_contig_file = "gunzip -c {}".format(contig_file)
+else:
+    piped_contig_file = "cat {}".format(contig_file)
+
+# Hack to rename .fa files to .fasta to make FastK work
+if (contig_basename[-2:] == "fa"):
+    contig_basename_mv = contig_basename + "sta"
+else:
+    contig_basename_mv = contig_basename
+
+# Hash job names for bwait completion checks
+def hash_jobname(jobname):
+    jobhash = int(hashlib.sha1(jobname.encode(
+        'utf-8')).hexdigest(), 16) % (10**8)
+    #exit_status_string = "ended('{}')".format(jobhash)
+    return jobhash  # , exit_status_string
+
+# Build list of jobs to wait for
+def all_hashes():
+    wait_rules = ["{}_tetra", "{}_hex", "{}_fastk", "{}_unique"]
+    if (pair_file != "None"):
+        wait_rules.append("{}_hic")
+    return " && ".join(["ended('{}')".format(hash_jobname(i.format(sample_id))) for i in wait_rules])
+
+# Add plot annotation fields depending on provided input
+def include_annots():
+    annot_fields = "Hexamer FastK Unique_{}mers".format(k_unique)
+    annot_files = "density/{0}/{1}.{0}.hexsum fastk/{0}/k_{2}/medians/{1}.median_{2}mer.txt unique_kmers/{0}/k_{3}/{1}.{3}_mers.txt".format(seq_type, sample_id, k_long, k_unique)
+    if contig_noseq != "None":
+        annot_fields += " Coverage"
+        annot_files += " coverage/{0}.{1}.coverage.txt".format(sample_id, seq_type)
+    if (pair_file != "None"):
+        annot_fields += " Is_Connected Connections_Base"
+        annot_files += " connections/is_connected/{0}.txt connections/is_connected/{0}.normbp.txt".format(sample_id)
+    return annot_fields, annot_files
+
+
+
+# rules
+k = 4
+k_long = 60
+k_unique = 15 # 8 is default for reads
+
+# collapse k-mers and their reverse complement?
+if collapsed == "collapsed":
+    collapse_true = 1
+else:
+    collapse_true = 0
+
+base_out = "kmer_counts/{}/k_{}".format(seq_type, k)
+
+rule all:
+    input:
+        "{}/collapsed/logs/{}.submitted".format(base_out, sample_id),
+        "density/{}/logs/{}.submitted".format(seq_type, sample_id),
+        "fastk/{}/k_{}/logs/{}.fastk.submitted".format(seq_type, k_long, sample_id),
+        "{}.draw.cmd.txt".format(sample_id),
+        "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type),
+        "coverage/{}.{}.coverage.txt".format(sample_id, seq_type) if (contig_noseq != "None") else [],
+        "connections/logs/{}.submitted".format(sample_id) if (pair_file != "None") else [], 
+        "html/logs/{}.submitted".format(sample_id)
+
+# Count contig tetranucleotides and store them in a .npy file
+# Also outputs a text file with all contig ids, which is needed for selection widget
+#python {tetra_count_path} --infile={contig_file} --outfile={base_out}/collapsed/counts/{sample_id}.{seq_type}.tetra.collapsed.npy \
+#         --seqidfile={base_out}/ids/{sample_id}.{seq_type}.ids.txt --n={k} --c=T
+rule contig_tetra:
+    input:
+        {contig_file}
+    output:
+        "{}/{}/logs/{}.submitted".format(base_out, collapsed, sample_id),
+    params:
+        jobhash = hash_jobname("{}_tetra".format(sample_id))
+    shell:
+        """
+        mkdir -p {base_out}/ids/
+        mkdir -p {base_out}/{collapsed}/counts/
+        bsub -G {user_group} -R \"span[hosts=1] select[mem>8000] rusage[mem=8000]\" -M8000 -q normal \
+         -o {base_out}/{collapsed}/logs/{sample_id}.log -e {base_out}/{collapsed}/logs/{sample_id}.err -J \"{params.jobhash}\" \
+         \'{tetra_count_path} --file {contig_file} --collapse 1 --ids {base_out}/ids/{sample_id}.{seq_type}.ids.txt --klength {k} --out {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy \'
+         touch {base_out}/{collapsed}/logs/{sample_id}.submitted
+         echo "submitted as {params.jobhash}"
+         """
+
+# Calculate approximate coding density using a modified version of hexamer, which takes the sum of all putative coding windows divided by sequence length
+rule contig_hexsum:
+    input:
+        {contig_file}
+    params:
+        jobhash = hash_jobname("{}_hex".format(sample_id))
+    output:
+        "density/{}/logs/{}.submitted".format(seq_type, sample_id),
+    shell:
+        """ 
+            mkdir -p density/{seq_type}/logs/
+            bsub -G {user_group} -R "span[hosts=1] select[mem>800] rusage[mem=800]" -M800 -q normal \
+            -o density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.out \
+            -e density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.err -J \"{params.jobhash}\" \
+            \'{piped_contig_file} | {hexamer_path} -T 20 {hextable_path} - > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
+            touch density/{seq_type}/logs/{sample_id}.submitted
+            """
+
+# Generate FastK profiles of 60-mers for contigs, then calculate the median 60-mer occurence across the whole set for each 60-mer in the contig
+# High scores may indicate repetitiveness in the case of contigs, or patchy assembly
+rule contig_fastk:
+    input:
+        {contig_file}
+    output:
+        "fastk/{}/k_{}/logs/{}.fastk.submitted".format(seq_type, k_long, sample_id),
+    params:
+        jobhash = hash_jobname("{}_fastk".format(sample_id)),
+    shell:
+        """
+        echo {params.jobhash}
+
+        mkdir -p fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
+        mkdir -p fastk/{seq_type}/k_{k_long}/medians/
+        cp -n {contig_file} fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{contig_basename_mv}
+        #mv -n fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
+
+        # make profile
+        bsub -G {user_group} -n10 -R "span[hosts=1] select[mem>12000] rusage[mem=12000]" -M12000 -q normal \
+        -o fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.out \
+        -e fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.err -J \"{params.jobhash}\" \
+        \'{fastk_path}FastK -k{k_long} -p -T10 ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{contig_basename_mv};
+        {fastk_path}ProfMedianAll fastk/{seq_type}/k_{k_long}/profile/{sample_id}/*prof > \
+        fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt\'
+        touch fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.submitted
+        echo "submitted as {params.jobhash}"
+        """
+
+# Calculates the number of distinct 15-mers observed in a sequence divided by length (does not canonicalize)
+rule contig_unique_kmers:
+    input:
+        {contig_file}
+    params:
+        jobhash = hash_jobname("{}_unique".format(sample_id))
+    output:
+        "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type)
+    shell:
+        """
+        bsub -G {user_group} -R "span[hosts=1] select[mem>8000] rusage[mem=8000]" -M8000 -q normal \
+        -o unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.out \
+        -e unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.err -J \"{params.jobhash}\" \
+        \'{un_count_path} --klength {k_unique} --file {contig_file} --out unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt\'
+        touch unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.submitted
+        """
+# Extracts hifiasm coverage estimate
+rule contig_coverage:
+    input:
+        {contig_noseq}
+    output:
+        "coverage/{}.{}.coverage.txt".format(sample_id, seq_type)
+    shell:
+        """grep \"S.*ptg\" {contig_noseq} | sed -n \'s/.*rd:i:\([0-9]\)/\\1/p\' > coverage/{sample_id}.{seq_type}.coverage.txt"""
+
+# If a pair file is provided, generate matrix of counts
+rule hic_scaffs:
+#TODO: Speed up counting?
+#TODO: Script path
+    input:
+        {pair_file}
+    params:
+        jobhash = hash_jobname("{}_hic".format(sample_id))
+    output:
+        "connections/logs/{}.submitted".format(sample_id)
+    shell:
+        """
+        mkdir -p connections/logs
+        mkdir -p connections/npy
+        mkdir -p connections/is_connected
+
+        bsub -G {user_group} -R "span[hosts=1] select[mem>8000] rusage[mem=8000]" -M8000 -q normal \
+        -o connections/logs/{sample_id}.connections.out \
+        -e connections/logs/{sample_id}.connections.err -J \"{params.jobhash}\" \
+        \'python {hic_link_path} --pairfile {pair_file} --sizefile {size_file} --outfile connections/npy/{sample_id}.npy --outconn  connections/is_connected/{sample_id}.txt --outconnbp connections/is_connected/{sample_id}.normbp.txt\'
+        touch connections/logs/{sample_id}.submitted
+        """
+
+# TODO: Check for errors in output, e.g. empty files
+rule plot_umap_txt:
+    input:
+        {contig_file},
+        "coverage/{}.{}.coverage.txt".format(sample_id, seq_type) if (contig_noseq != "None") else [],
+        "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type),
+        "{}/{}/logs/{}.submitted".format(base_out, collapsed, sample_id),
+        "density/{}/logs/{}.submitted".format(seq_type, sample_id),
+        "fastk/{}/k_{}/logs/{}.fastk.submitted".format(seq_type, k_long, sample_id),
+        "connections/logs/{}.submitted".format(sample_id) if (pair_file != "None") else [],
+    params:
+        hashes = all_hashes()
+    output:
+        "{}.draw.cmd.txt".format(sample_id)
+    shell: 
+        """
+        echo \"python {reduced_plot_path} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile {sample_id}_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt \
+            --annotfiles \\"density/{seq_type}/{sample_id}.{seq_type}.hexsum fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt\\" --annotnames \\"Hexamer FastK Unique_{k_unique}mers\\" --speciesname {sample_id}\" > {sample_id}.draw.cmd.txt
+        bwait -w \"{params.hashes}\"
+        """
+        #\"ended(\'{params.jobhash_hex}\') && ended(\'{params.jobhash_tetra}\') && ended(\'{params.jobhash_fastk}\') && ended(\'{params.jobhash_unique}\')\"
+
+rule selection_plot:
+    input:
+        "{}.draw.cmd.txt".format(sample_id)
+    params:
+        annot = include_annots()
+    output:
+        touch("html/logs/{}.submitted".format(sample_id))
+    shell:
+        """
+        bash -c '
+        . $HOME/.bashrc # if not loaded automatically
+        conda activate {conda_tf}
+        bsub -G {user_group} -R "span[hosts=1] select[mem>1000] rusage[mem=1000]" -M1000 -q normal \
+        -o html/logs/{sample_id}_{seq_type}_multi_select{sample_id}.out \
+        -e html/logs/{sample_id}_{seq_type}_multi_select{sample_id}.err \
+        \"python {reduced_plot_path} --seqtype {seq_type} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile html/{sample_id}_{seq_type}_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt --annotfiles \\"{params.annot[1]}\\" --annotnames \\"{params.annot[0]}\\" --speciesname {sample_id}\"
+
+        '
+        """
+        
+
