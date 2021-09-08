@@ -17,4 +17,6 @@ hexamer_path: /software/team301/user/cw21/hexamer/hexsum
 un_count_path: /software/team301/user/cw21/unique_kmers/target/release/unique-kmers
 tetra_count_path: /software/team301/user/cw21/kmer_counter/target/release/kmer-counter
 hextable_path: /software/team301/user/cw21/hexamer/cds.worm.hex
+reduced_plot_path: /software/team301/user/cw21/composition_scripts/Select_contigs_reduced_multi.py
+hic_link_path: /software/team301/user/cw21/composition_scripts/hic_links.py
 conda_tf: /software/team301/user/cw21/conda/kmerviz
