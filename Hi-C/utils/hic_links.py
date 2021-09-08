@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # cw21@sanger.ac.uk
 
 import argparse
