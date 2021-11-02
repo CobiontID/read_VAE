@@ -83,8 +83,7 @@ rule read_hexsum:
     input:
         {read_file}
     output:
-        "density/{}/logs/{}.submitted".format(seq_type, sample_id),
-        "density/{}/logs/".format(seq_type)
+        "density/{}/logs/{}.submitted".format(seq_type, sample_id)
     params:
         jobhash = hash_jobname("{}_hex".format(sample_id))
     shell:
