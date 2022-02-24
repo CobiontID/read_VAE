@@ -20,10 +20,13 @@ As with the reads, tallies and reduces tetranucleotide composition to two dimens
 
 ## Tools
 ### <a href="https://github.com/CobiontID/kmer_decomposition/tree/main/kmer-counter">kmer-counter</a>
-Count the number of occurences of each k-mer of size k for each record in a fasta file of nucleotide sequences (canonicalised or non-canonicalised). Implemented in Rust, runs approximately ten times faster than the equivalent code in Python.
+Counts the number of occurences of each k-mer of size k for each record in a fasta file of nucleotide sequences (canonicalised or non-canonicalised). Implemented in Rust, runs approximately ten times faster than the equivalent code in Python.
 ### <a href="https://github.com/CobiontID/kmer_decomposition/tree/main/unique-kmer-counts">unique-kmer-counter</a>
 Count the number of distinct k-mers of size k for each record in a fasta files of nucleotide sequences, and divide by sequence length. Implemented in Rust.
-### hexsum
+### hexamer
+Estimates the coding density using the sum of lengths of putative coding sequences divided by sequence length. The cobiont pipelines previously used a modified version of the old hexamer code. The relevant functionality is now available in an updated version of hexamer from
+https://github.com/richarddurbin/hexamer (to extract the estimated density, pipe stdout to `awk '{ print $3/$2}'`)
+
 ### FastK profile medians
 
 ### <a href="https://github.com/CobiontID/kmer_decomposition/tree/main/VAE">Variational Autoencoder for k-mer decomposition</a>
