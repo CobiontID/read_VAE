@@ -7,6 +7,8 @@ species_name = config['species_name']
 
 read_file = config['read_file']
 
+fastk_tab = config ['fastk_tab']
+
 user_group = config['user_group']
 fastk_path = config['fastk_path']
 un_count_path = config['un_count_path']
@@ -33,7 +35,7 @@ read_basename = read_file.split("/")[-1]
 
 # rules
 k = 4
-k_long = 60
+k_long = 31
 k_unique = 8
 seq_type = "reads"
 collapsed = "collapsed"
@@ -48,6 +50,11 @@ else:
     collapse_true = 0
 
 base_out = "kmer_counts/{}/k_{}".format(seq_type, k)
+
+if fastk_tab != "None":
+    ktab = ":{}".format(fastk_tab)
+else:
+    ktab = ""
 
 rule all:
     input:
@@ -83,7 +90,8 @@ rule read_hexsum:
     input:
         {read_file}
     output:
-        "density/{}/logs/{}.submitted".format(seq_type, sample_id)
+        "density/{}/logs/{}.submitted".format(seq_type, sample_id),
+    #    "density/{}/logs/".format(seq_type)
     params:
         jobhash = hash_jobname("{}_hex".format(sample_id))
     shell:
@@ -92,7 +100,7 @@ rule read_hexsum:
             bsub -G {user_group} -R "span[hosts=1] select[mem>800] rusage[mem=800]" -M800 -q normal \
             -o density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.out \
             -e density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.err -J \"{params.jobhash}\" \
-            \'gunzip -c {read_file} | {hexamer_path} -T 20 {hextable_path} - > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
+            \'gunzip -c {read_file} | {hexamer_path} -T 20 -S {hextable_path} - | awk '{ print $3/$2 }' > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
             touch density/{seq_type}/logs/{sample_id}.submitted
             """
         # TODO: Indicate completion...
@@ -117,10 +125,10 @@ rule read_fastk:
         #mv -n fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
 
         # make profile
-        bsub -G {user_group} -n8 -R "span[hosts=1] select[mem>8000] rusage[mem=8000]" -M8000 -q normal \
+        bsub -G {user_group} -n8 -R "span[hosts=1] select[mem>16000] rusage[mem=16000]" -M16000 -q normal \
         -o fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.out \
         -e fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.err -J \"{params.jobhash}\" \
-        \'{fastk_path}FastK -k{k_long} -T8 -p ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename};
+        \'{fastk_path}FastK -k{k_long} -T8 -p{ktab} ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename};
         {fastk_path}ProfMedianAll fastk/{seq_type}/k_{k_long}/profile/{sample_id}/*prof > \
         fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt\'
         touch fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.submitted
@@ -137,8 +145,8 @@ rule read_unique_kmers:
         "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type)
     shell:
         """
-	mkdir -p unique_kmers/{seq_type}/k_{k_unique}/logs/
-        bsub -G {user_group} -R "span[hosts=1] select[mem>8000] rusage[mem=8000]" -M8000 -q normal\
+        mkdir -p unique_kmers/{seq_type}/k_{k_unique}/logs/
+        bsub -G {user_group} -R "span[hosts=1] select[mem>12000] rusage[mem=12000]" -M12000 -q normal\
         -o unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.out \
         -e unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.err -J \"{params.jobhash}\" \
         \'{un_count_path} --klength {k_unique} --file {read_file} --out unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt\'
@@ -189,7 +197,7 @@ rule run_vae_tetra:
         conda activate {conda_tf}
         mkdir -p vae/{sample_id}
         mkdir -p vae/logs
-        bsub -G team301-grp -R "span[hosts=1] select[mem>4000] rusage[mem=4000]" -M4000 -q normal -o vae/logs/{sample_id}.out -e vae/logs/{sample_id}.err -J\"{params.jobhash}\" \
+        bsub -G team301-grp -R "span[hosts=1] select[mem>6000] rusage[mem=6000]" -M6000 -q normal -o vae/logs/{sample_id}.out -e vae/logs/{sample_id}.err -J\"{params.jobhash}\" \
         python {vae_path} --countfile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --fignames {sample_id} --kl 0.0025 --epochs 15 --outdir vae/{sample_id}/
         echo "submitted VAE as {params.jobhash}"
 	    sleep 30
