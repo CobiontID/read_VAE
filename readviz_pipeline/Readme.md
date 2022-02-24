@@ -10,6 +10,7 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `sample_id`: The sample identifier (used to name output files)
      - `species_name`: The full species name 
      - `read_file`: Path to the file containing the reads to be analysed
+     - `fastk_tab`: Path to FastK .ktab file. Optional. If provided, FastK will profile the reads against the existing table. If not using, set to `None`
      
    - Base configuration:
      - `user_group`: User group to be used for LSF
