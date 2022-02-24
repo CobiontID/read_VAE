@@ -100,7 +100,7 @@ rule read_hexsum:
             bsub -G {user_group} -R "span[hosts=1] select[mem>800] rusage[mem=800]" -M800 -q normal \
             -o density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.out \
             -e density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.err -J \"{params.jobhash}\" \
-            \'gunzip -c {read_file} | {hexamer_path} -T 20 -S {hextable_path} - | awk '{ print $3/$2 }' > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
+            \'gunzip -c {read_file} | {hexamer_path} -T 20 -S {hextable_path} - | awk '"'"'{{ print $3/$2 }}'"'"' > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
             touch density/{seq_type}/logs/{sample_id}.submitted
             """
         # TODO: Indicate completion...
