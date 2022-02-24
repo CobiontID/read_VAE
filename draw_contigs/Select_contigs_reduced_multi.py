@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# cw21@sanger.ac.uk
 # Generates HTML file of decomposed tetranucleotide plots with binned annotations
 # coding: utf-8
 import sys
@@ -8,16 +7,18 @@ import argparse
 ##
 parser = argparse.ArgumentParser(
     description='Plot decomposed contigs')
-parser.add_argument("--infile", help="input .npy file of counts")
+parser.add_argument("--infile", help="input .npy file of counts", required=True)
 parser.add_argument("--outfile", help="file with contig identifiers")
-parser.add_argument("--seqidfile", help="input list of seqids")
+parser.add_argument("--seqidfile", help="input list of seqids", required=True)
 parser.add_argument("--annotfiles", help="input hexsum, FastK results, coverage...")
 parser.add_argument("--annotnames", help="list of names for dropdown menu")
-parser.add_argument("--bins", help="input number of bins", default=5)
+parser.add_argument("--bins", help="input number of bins", default=5, type=int)
 parser.add_argument("--discretize", help="discretize by quantile or linear", default="quantile")
 parser.add_argument("--speciesname", help="species name")
 parser.add_argument("--pca", help="Do PCA instead of UMAP", default="F")
 parser.add_argument("--seqtype", help="Type of sequence (for plot label), defaults to contigs", default = "contigs")
+parser.add_argument("--keepbins", help="Use existing integer labels from file instead of binning (uses discrete colormap)", default = "F")
+parser.add_argument("--save_coords", help="Path to file to store coordinates", default=None)
 
 args = parser.parse_args()
 print(args)
@@ -30,6 +31,8 @@ annotfiles = args.annotfiles.split()
 annotnames = args.annotnames.split()
 use_pca = args.pca
 seqtype = args.seqtype
+keep_bins = args.keepbins
+save_coords = args.save_coords
 
 # Override p_ctg label
 if seqtype == "p_ctg":
@@ -40,7 +43,8 @@ try:
 except:
     print("Error, annotation labels and annotation file list must have same length")
 
-n = int(args.bins)
+n = args.bins
+
 discretize = args.discretize
 
 if None in [infile, outfile, seqidfile, annotfiles, annotnames]:
@@ -74,6 +78,9 @@ from matplotlib import cm
 
 
 # ## Define helper functions
+
+# In[2]:
+
 
 def load_counts_norm(infile):
     counts = np.load(infile)
@@ -124,12 +131,6 @@ def make_update_callback(cont_names):
             }};\n\n".format(c_name, i)
     return c_string
 
-
-
-#import colorcet as cc
-v = cm.get_cmap('viridis')
-color_key = list(enumerate([matplotlib.colors.rgb2hex(i) for i in v(np.linspace(0,1,n))]))
-
 ##
 def draw_bokeh_multi(x, y, contig_ids, conts, bins, cont_names, spname, outfile, decomp):
 
@@ -144,7 +145,7 @@ def draw_bokeh_multi(x, y, contig_ids, conts, bins, cont_names, spname, outfile,
     # Caution: Hard-coded tetranucs
     p = figure(title="{} {} tetranucleotides reduced with {}".format(spname, seqtype[:-1], decomp),
        #tools="pan,box_zoom,reset,lasso_select",
-       tools=[hover,'pan', 'box_zoom','reset','lasso_select','save'],
+       tools=[hover,'pan', 'box_zoom','wheel_zoom', 'reset','lasso_select','save'],
        x_axis_label='1', y_axis_label='2',  plot_width=600, plot_height=500
     )
     
@@ -272,6 +273,9 @@ table.change.emit();""".format(make_update_callback(cont_names))
 
 # ## Load counts and transform
 
+# In[6]:
+
+
 counts_tetra_n, sum_counts_tetra =  load_counts_norm(infile)
 
 if use_pca == "F":
@@ -286,6 +290,8 @@ contig_ids = [line.strip() for line in open(seqidfile)]
 
 
 # ## Label bins
+
+# In[9]:
 
 continuous = []
 digitized = []
@@ -302,6 +308,12 @@ for j, contfile in enumerate(annotfiles):
     if set(cont) == {0.0, 1.0}:
         print("not binning, already bool")
         digitized.append([int(i) if i == 0. else n-1 for i in cont])
+    elif keep_bins == "T":
+        print("Keeping input labels")
+        digitized.append(cont.astype(int))
+        n_labels = len(set(cont))
+        if n < n_labels:
+            n = n_labels
     else:
         if discretize == "quantile":
             bins = [np.quantile(cont, i) for i in np.linspace(0, 1, n+1)]
@@ -310,7 +322,20 @@ for j, contfile in enumerate(annotfiles):
             bins = np.linspace(np.min(cont), np.max(cont), n)
             digitized.append(np.digitize(cont, bins))
 
+#import colorcet as cc
+if keep_bins == "F":
+    v = cm.get_cmap('viridis')
+else:
+    v = cm.get_cmap('tab20')
+color_key = list(enumerate([matplotlib.colors.rgb2hex(i) for i in v(np.linspace(0,1,n))]))
+
+# In[10]:
 
 #TODO: Add option to export "plain" html
 output_notebook()
 draw_bokeh_multi(contig_tetra_transformed[:,0], contig_tetra_transformed[:,1], contig_ids, continuous, digitized, annotnames, spname, outfile, decomp)
+
+if save_coords is not None:
+    print("Writing coordinates to {}".format(save_coords))
+    np.save(save_coords, contig_tetra_transformed)
+
