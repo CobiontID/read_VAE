@@ -10,7 +10,7 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `sample_id`: The sample identifier (used to name output files)
      - `species_name`: The full species name 
      - `contig_file`: Path to the fasta (or fasta.gz) containing the contig sequences
-     - `contig_noseq`: Path to hifiasm .noseq.gfa to calculate coverage (if not using hifiasm, set to None)
+     - `contig_noseq`: Path to hifiasm .noseq.gfa to calculate coverage, optional (if not using hifiasm, set to None)
      - `assembler`: Assembler, e.g. hifiasm
      - `seq_type`: Type of sequence input for labelling purposes, e.g. "p_ctg" or "scaffolds"
      - `collapse_kmers`: Specify if k-mers should be canonicalised (collapsed) or not (uncollapsed)
