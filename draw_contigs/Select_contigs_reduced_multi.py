@@ -19,6 +19,7 @@ parser.add_argument("--pca", help="Do PCA instead of UMAP", default="F")
 parser.add_argument("--seqtype", help="Type of sequence (for plot label), defaults to contigs", default = "contigs")
 parser.add_argument("--keepbins", help="Use existing integer labels from file instead of binning (uses discrete colormap)", default = "F")
 parser.add_argument("--save_coords", help="Path to file to store coordinates", default=None)
+parser.add_argument("--save_tsv", help="Path to file to save tsv file", default=None)
 
 args = parser.parse_args()
 print(args)
@@ -33,6 +34,7 @@ use_pca = args.pca
 seqtype = args.seqtype
 keep_bins = args.keepbins
 save_coords = args.save_coords
+save_tsv = args.save_tsv
 
 # Override p_ctg label
 if seqtype == "p_ctg":
@@ -41,14 +43,15 @@ if seqtype == "p_ctg":
 try:
     assert len(annotfiles) == len(annotnames)
 except:
-    print("Error, annotation labels and annotation file list must have same length")
+    print("Error, annotation labels and annotation file list must have same length", file=sys.stderr)
+    sys.exit(1)
 
 n = args.bins
 
 discretize = args.discretize
 
 if None in [infile, outfile, seqidfile, annotfiles, annotnames]:
-    print("--infile, --outfile, --annotfiles, --annotnames and --seqidfile must be provided")
+    print("--infile, --outfile, --annotfiles, --annotnames and --seqidfile must be provided", file=sys.stderr)
     sys.exit(1)
 
 
@@ -61,7 +64,7 @@ np.random.seed(42)
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-import umap
+
 
 
 #from ipywidgets import interact
@@ -271,25 +274,15 @@ table.change.emit();""".format(make_update_callback(cont_names))
     save(layout)
 
 
-# ## Load counts and transform
+# ## Load counts
 
 # In[6]:
 
 
 counts_tetra_n, sum_counts_tetra =  load_counts_norm(infile)
-
-if use_pca == "F":
-    decomp = "UMAP"
-    transformer_tetra, scaler_tetra = do_umap(counts_tetra_n[:,:])
-    contig_tetra_transformed = transform_umap(counts_tetra_n[:,:], transformer_tetra, scaler_tetra)
-else:
-    contig_tetra_transformed = do_pca(counts_tetra_n)
-    decomp = "PCA"
-
 contig_ids = [line.strip() for line in open(seqidfile)]
 
-
-# ## Label bins
+# ## Label bins and check annotations and counts have matching lengths
 
 # In[9]:
 
@@ -301,9 +294,12 @@ print(annotfiles)
 for j, contfile in enumerate(annotfiles):
     cont = np.array([float(i) for i in open(contfile).read().split()])
     try:
-        assert len(cont) == len(contig_ids)
+        assert len(cont) == len(contig_ids) == len(counts_tetra_n)
     except:
-        print("Error, the length of the annotation vector must be equal to the number of contig identifiers.")
+        print("Error, the length of the annotation vector ({}) must be equal to the number of contigs ({}) and identifiers ({}).\
+            ".format(len(cont), len(counts_tetra_n), len(contig_ids)), file=sys.stderr)
+        sys.exit(1)
+
     continuous.append(cont)
     if set(cont) == {0.0, 1.0}:
         print("not binning, already bool")
@@ -311,6 +307,7 @@ for j, contfile in enumerate(annotfiles):
     elif keep_bins == "T":
         print("Keeping input labels")
         digitized.append(cont.astype(int))
+        # Get maximum number of labels
         n_labels = len(set(cont))
         if n < n_labels:
             n = n_labels
@@ -329,6 +326,17 @@ else:
     v = cm.get_cmap('tab20')
 color_key = list(enumerate([matplotlib.colors.rgb2hex(i) for i in v(np.linspace(0,1,n))]))
 
+# Transform counts
+if use_pca == "F":
+    import umap #Don't load until input passes checks
+    decomp = "UMAP"
+    transformer_tetra, scaler_tetra = do_umap(counts_tetra_n[:,:])
+    contig_tetra_transformed = transform_umap(counts_tetra_n[:,:], transformer_tetra, scaler_tetra)
+else:
+    contig_tetra_transformed = do_pca(counts_tetra_n)
+    decomp = "PCA"
+
+
 # In[10]:
 
 #TODO: Add option to export "plain" html
@@ -338,4 +346,8 @@ draw_bokeh_multi(contig_tetra_transformed[:,0], contig_tetra_transformed[:,1], c
 if save_coords is not None:
     print("Writing coordinates to {}".format(save_coords))
     np.save(save_coords, contig_tetra_transformed)
+
+if save_tsv is not None:
+    print("Saving tsv file to {}".format(save_tsv))
+    np.savetxt(save_tsv, contig_tetra_transformed, fmt="%.6e", delimiter="\t", header="x_{0}\ty_{0}".format(decomp))
 
