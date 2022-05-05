@@ -14,8 +14,8 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `assembler`: Assembler, e.g. hifiasm
      - `seq_type`: Type of sequence input for labelling purposes, e.g. "p_ctg" or "scaffolds"
      - `collapse_kmers`: Specify if k-mers should be canonicalised (collapsed) or not (uncollapsed)
-     - `pair_file`: Pair file with scaffold contacts from SALSA, optional (if not using Hi-C, set None)
-     - `size_file`: File with scaffold sizes from SALSA (if not using Hi-C, set None)
+     - `pair_file`: Pair file with scaffold contacts from SALSA or YaHs, optional (if not using Hi-C, set None)
+     - `size_file`: File with scaffold sizes (if not using Hi-C, set None)
 
   - Base configuration:
      - `user_group`: User group to be used for LSF
