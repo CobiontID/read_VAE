@@ -5,15 +5,16 @@ import argparse
 
 parser = argparse.ArgumentParser(
     description='Generate scaffold contact matrix')
-parser.add_argument("--pairfile", help="input file with pairs")
-parser.add_argument("--sizefile", help="input scaffold size file")
-parser.add_argument("--outfile", help="Output .npy")
+parser.add_argument("--pairfile", help="input file with pairs", required=True)
+parser.add_argument("--sizefile", help="input scaffold size file", required=True)
+parser.add_argument("--outfile", help="Output .npy", required=True)
 parser.add_argument("--outconn", help="Output .txt with bool", default = "None")
 parser.add_argument("--outconnbp", help="Output .txt with bool", default = "None")
 
 args = parser.parse_args()
 print(args)
 
+# required
 infile = args.pairfile
 outfile = args.outfile
 sizefile = args.sizefile
