@@ -4,13 +4,13 @@ import argparse
 from itertools import combinations
 
 parser = argparse.ArgumentParser(
-    description='Generate categorical integer labels by sequence ids. Unlabelled identifiers are assigned 0, the nth set of sequences is assigned the label n')
+    description='Generate categorical integer labels by sequence ids. Unlabelled identifiers are assigned 0, the nth set of sequences is assigned the label n. Identifiers found in multiple sets are assigned to their own additional category if present.')
 
 parser.add_argument(
-    "--idfiles", help="One or more files with sequence identifiers (one per line)")
+    "--idfiles", help="One or more files with sequence identifiers (one per line)", required=True)
 parser.add_argument(
-    "--bins", help="One or more files listing identifiers of sequences belonging to a given bin (one per line)")
-parser.add_argument("--labelled", help="Destination for file with labels.")
+    "--bins", help="One or more files listing identifiers of sequences belonging to a given bin (one per line)", required=True)
+parser.add_argument("--labelled", help="Destination for file with labels.", required=True)
 
 args = parser.parse_args()
 print(args)
