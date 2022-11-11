@@ -6,11 +6,11 @@ parser = argparse.ArgumentParser(
     description='Generate categorical integer labels by sequence ids from a continuous vector. N specifies the number of quantiles to bin into.')
 
 parser.add_argument(
-    "--idfiles", help="One or more files with sequence identifiers (one per line)")
+    "--idfiles", help="One or more files with sequence identifiers (one per line)", required=True)
 parser.add_argument(
-    "--feature", help="File with continuous vector to be binned (one per line)")
-parser.add_argument("--labelled", help="Destination for file with labels.")
-parser.add_argument("--n", help="Number of bins.")
+    "--feature", help="File with continuous vector of non-negative numbers to be binned (one per line)", required=True)
+parser.add_argument("--labelled", help="Destination for file with output labels.", required=True)
+parser.add_argument("--n", help="Number of bins.", required=True)
 
 args = parser.parse_args()
 print(args)
