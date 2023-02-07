@@ -33,7 +33,7 @@ for i, cat in enumerate(binfiles):
 
 # Add bin for identifiers that appear in multiple sets.
 nt = lambda a, b: all_sets[a].intersection(all_sets[b])
-in_multiple = set().union(*[nt(*i) for i in combinations(range(i), 2)])
+in_multiple = set().union(*[nt(*j) for j in combinations(range(i+1), 2)])
 
 if len(in_multiple) > 0:
     np.put(mask, np.where([seqid in in_multiple for seqid in ids]), [i+2])
