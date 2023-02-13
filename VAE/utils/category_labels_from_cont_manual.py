@@ -10,7 +10,7 @@ parser.add_argument(
 parser.add_argument(
     "--feature", help="File with continuous vector to be binned (one per line)", required=True)
 parser.add_argument("--labelled", help="Destination for output file with labels.", required=True)
-parser.add_argument("--bins", help="List of bin edges.", required=True)
+parser.add_argument("--bins", help="List of bin edges, omitting minimum and maximum values. The list must be monotonic with no duplicate values.", required=True)
 
 
 args = parser.parse_args()
@@ -29,8 +29,6 @@ ids = [y for x in ids for y in x]
 cont = [open(f).read().split() for f in feature]
 cont = np.array([float(y) for x in cont for y in x])
 
-
-bins = [0.] + bins + [np.max(cont)]
 digitized = np.digitize(cont, bins, right=True)
 
 np.savetxt(outfile, digitized, fmt='%i', delimiter="\n")
