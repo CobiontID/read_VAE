@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# cw21@sanger.ac.uk
+
 # Generates HTML file of decomposed tetranucleotide plots with binned annotations
 # coding: utf-8
 import sys
