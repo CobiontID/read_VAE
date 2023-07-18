@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# cw21@sanger.ac.uk
+
 import argparse
 
 ##################################
@@ -25,7 +27,9 @@ parser.add_argument(
 parser.add_argument("--remove", help="Remove all classified points (requires --labels to be provided)",
                     default="F", choices=["T", "F"])
 parser.add_argument("--canvas_size", help="Width/height of output image (square canvas)",
-                    type=int, default=1500, choices=[500, 1000, 1500])
+                    type=int, default=1000, choices=[500, 1000, 1500])
+parser.add_argument("--edges", help="Bin edges", default="", required=False)
+parser.add_argument("--legend_y_label", help="Label for legend (applies if edges supplied)", default="", required=False)
 
 
 args = parser.parse_args()
@@ -41,6 +45,8 @@ outdir = args.outdir
 custom_cmap = args.cmap
 remove_classified = args.remove
 is_npy = args.npy
+edges = args.edges
+legend_y_label = args.legend_y_label
 
 canvas_size = args.canvas_size
 
@@ -124,6 +130,38 @@ def get_legend_labels(n_labels):
     """Add text to legend labels (returns a dictionary)"""
     return dict(zip(list(range(n_labels)), [f"bin {i}" for i in range(n_labels)]))
 
+def hook(plot, element):
+    plot.state.yaxis.major_tick_line_color = None        # turn off x-axis major ticks
+    plot.state.yaxis.minor_tick_line_color = None        # turn off x-axis minor ticks
+    plot.state.yaxis.axis_line_color = None              # hide y-axis line
+    plot.state.yaxis.axis_label_text_font = "sans serif"
+
+def draw_legend_edges(edges, n_labels, colors_hex, legend_y_label, canvas_size):
+    """Draw colourbar legend with bin edges as y ticks, using heatmap as workaround"""
+    edges = [float(i.strip()) for i in open(edges)]
+    assert len(edges) == n_labels+1
+    hm_legend = hv.HeatMap(([0]*n_labels, range(n_labels), range(n_labels))).opts(
+                cmap=colors_hex,
+                ylabel=legend_y_label,
+                xlabel="",
+                xaxis=None,
+                toolbar=None,
+                active_tools=[],
+                show_frame=False,
+                border=2,
+                frame_width=20,
+                yaxis="right",
+                frame_height=canvas_size,
+                margin=10,
+                yticks=[(i,j) for i,j in zip(
+                    np.linspace(-0.49,n_labels+0.49, n_labels+2),
+                    [f"{np.round(i, decimals=2)}" for i in edges]
+                    )],
+                shared_axes=False,
+                hooks=[hook], alpha=0.9,
+                padding=(0.0, 0.4),
+            )
+    return hm_legend
 
 #######################################################
 # Load data and render
@@ -149,19 +187,24 @@ else:
 
     # If superimpose is set to False (default), render and shade all points together.
     if superimpose == "F":
-        # Save plot
-        hv.save(
-            dynspread(
+        shaded = dynspread(
                 datashade(
                     points,
                     aggregator=ds.count_cat('label'),
                     color_key=colors_hex,
                 ).opts(
-                    width=canvas_size,
-                    height=canvas_size,
+                    frame_width=canvas_size,
+                    frame_height=canvas_size,
                     legend_labels=get_legend_labels(n_labels),
                 )
-            ),
+            )
+        if edges != "":
+            hm_legend = draw_legend_edges(edges, n_labels, colors_hex, legend_y_label, canvas_size)
+            shaded.opts(show_legend=False)
+            shaded = shaded + hm_legend
+        # Save plot
+        hv.save(
+            shaded,
             f'{outdir}{figures}.2d_plot_labelled.png',
             backend="bokeh",
             fmt='png',

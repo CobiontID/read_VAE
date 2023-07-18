@@ -1,4 +1,8 @@
+# cw21@sanger.ac.uk
+
 import hashlib
+
+# Get configuration
 
 configfile: "config.yml"
 
@@ -32,13 +36,20 @@ def hash_jobname(jobname):
 
 read_basename = read_file.split("/")[-1]
 
+# Pipe either fasta or decompressed .fa.gz
+if (read_basename[-2:] == "gz"):
+    piped_read_file = "gunzip -c {}".format(read_file)
+else:
+    piped_read_file = "cat {}".format(read_file)
 
-# rules
-k = 4
-k_long = 31
-k_unique = 8
-seq_type = "reads"
-collapsed = "collapsed"
+
+# Defaults
+
+k = 4 # K-mer size for VAE
+k_long = 31 # K-mer size for FastK
+k_unique = 8 # K-mer size for unique k-mers/base
+seq_type = "reads" # Type of sequence, used to label outputs
+collapsed = "collapsed" # Canonicalize (collapse) k-mers?
 
 only_counts = "False"
 print(only_counts)
@@ -51,10 +62,13 @@ else:
 
 base_out = "kmer_counts/{}/k_{}".format(seq_type, k)
 
+# Look for existing k-mer table, start profiling from scratch if none supplied
 if fastk_tab != "None":
     ktab = ":{}".format(fastk_tab)
 else:
     ktab = ""
+
+# rules
 
 rule all:
     input:
@@ -64,9 +78,7 @@ rule all:
 
 # Count read tetranucleotides and store them in a .npy file
 # Also outputs a text file with all read ids, which is needed for selection widget
-# Alternate Python counter:
-# python {tetra_count_path} --infile={read_file} --outfile={base_out}/collapsed/counts/{sample_id}.{seq_type}.tetra.collapsed.npy \
-# --seqidfile={base_out}/ids/{sample_id}.{seq_type}.ids.txt --n={k} --c=T
+
 rule read_tetra:
     input:
         {read_file}
@@ -78,7 +90,7 @@ rule read_tetra:
         """
         mkdir -p {base_out}/ids/
         mkdir -p {base_out}/{collapsed}/counts/
-        bsub -G {user_group} -R \"span[hosts=1] select[mem>8000] rusage[mem=8000]\" -M8000 -q normal \
+        bsub -G {user_group} -R \"span[hosts=1] select[mem>1000] rusage[mem=1000]\" -M1000 -q normal \
          -o {base_out}/{collapsed}/logs/{sample_id}.log -e {base_out}/{collapsed}/logs/{sample_id}.err -J \"{params.jobhash}\" \
          \'{tetra_count_path} --file {read_file} --collapse {collapse_true} --ids {base_out}/ids/{sample_id}.{seq_type}.ids.txt --klength {k} --out {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy \'
          touch {base_out}/{collapsed}/logs/{sample_id}.submitted
@@ -100,12 +112,11 @@ rule read_hexsum:
             bsub -G {user_group} -R "span[hosts=1] select[mem>800] rusage[mem=800]" -M800 -q normal \
             -o density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.out \
             -e density/{seq_type}/logs/{sample_id}.{seq_type}.hexsum.err -J \"{params.jobhash}\" \
-            \'gunzip -c {read_file} | {hexamer_path} -T 20 -S {hextable_path} - | awk '"'"'{{ print $3/$2 }}'"'"' > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
+            \'{piped_read_file} | {hexamer_path} -T 20 -S {hextable_path} - | awk '"'"'{{ print $3/$2 }}'"'"' > density/{seq_type}/{sample_id}.{seq_type}.hexsum\'
             touch density/{seq_type}/logs/{sample_id}.submitted
             """
-        # TODO: Indicate completion...
 
-# Generate FastK profiles of 60-mers for reads, then calculate the median 60-mer occurence across the whole set for each 60-mer in the read
+# Generate FastK profiles of 31-mers for reads, then calculate the median 31-mer occurence across the whole set for each 60-mer in the read
 # High scores may indicate repetitiveness in the case of reads, or patchy assembly
 rule read_fastk:
     input:
@@ -125,10 +136,10 @@ rule read_fastk:
         #mv -n fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
 
         # make profile
-        bsub -G {user_group} -n8 -R "span[hosts=1] select[mem>16000] rusage[mem=16000]" -M16000 -q normal \
+        bsub -G {user_group} -n8 -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal \
         -o fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.out \
         -e fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.err -J \"{params.jobhash}\" \
-        \'{fastk_path}FastK -k{k_long} -T8 -p{ktab} ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename};
+        \'{fastk_path}FastK -k{k_long} -T8 -M14 -p{ktab} ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename};
         {fastk_path}ProfMedianAll fastk/{seq_type}/k_{k_long}/profile/{sample_id}/*prof > \
         fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt\'
         touch fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.submitted
@@ -146,7 +157,7 @@ rule read_unique_kmers:
     shell:
         """
         mkdir -p unique_kmers/{seq_type}/k_{k_unique}/logs/
-        bsub -G {user_group} -R "span[hosts=1] select[mem>12000] rusage[mem=12000]" -M12000 -q normal\
+        bsub -G {user_group} -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal\
         -o unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.out \
         -e unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.err -J \"{params.jobhash}\" \
         \'{un_count_path} --klength {k_unique} --file {read_file} --out unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt\'
@@ -197,7 +208,9 @@ rule run_vae_tetra:
         conda activate {conda_tf}
         mkdir -p vae/{sample_id}
         mkdir -p vae/logs
-        bsub -G team301-grp -R "span[hosts=1] select[mem>6000] rusage[mem=6000]" -M6000 -q normal -o vae/logs/{sample_id}.out -e vae/logs/{sample_id}.err -J\"{params.jobhash}\" \
+        arr_size=$(wc -c {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy | awk '"'"'{{print $1/1000000}}'"'"')
+        echo "Count array size: $arr_size MB"
+        bsub -G team301-grp -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal -o vae/logs/{sample_id}.out -e vae/logs/{sample_id}.err -J\"{params.jobhash}\" \
         python {vae_path} --countfile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --fignames {sample_id} --kl 0.0025 --epochs 15 --outdir vae/{sample_id}/
         echo "submitted VAE as {params.jobhash}"
 	    sleep 30
@@ -232,11 +245,11 @@ rule coloured_plots:
 	    #sleep 30
         #bwait -w \"ended(\'{params.jobhash_vae}\')\"
         bsub -G team301-grp -R "span[hosts=1] select[mem>4000] rusage[mem=4000]" -M4000 -q normal -o vae/logs/{sample_id}.plots.out -e vae/logs/{sample_id}.plots.err \
-        python {cat_labeller_path} --feature density/{seq_type}/{sample_id}.{seq_type}.hexsum --idfiles kmer_counts/{seq_type}/k_4/ids/{sample_id}.{seq_type}.ids.txt --labelled vae/{sample_id}/hexsum.binned.{sample_id} --n 10;\
-        python {cat_labeller_path} --feature fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt --idfiles kmer_counts/{seq_type}/k_4/ids/{sample_id}.{seq_type}.ids.txt --labelled vae/{sample_id}/{k_long}mer.binned.{sample_id} --n 10;\
-        python {cat_labeller_path} --feature unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt --idfiles kmer_counts/{seq_type}/k_4/ids/{sample_id}.{seq_type}.ids.txt --labelled vae/{sample_id}/{k_unique}mer.binned.{sample_id} --n 10;\
-        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_60mer --labels vae/{sample_id}/{k_long}mer.binned.{sample_id};\
-        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_hexamer --labels vae/{sample_id}/hexsum.binned.{sample_id};\
-        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_8mer --labels vae/{sample_id}/{k_unique}mer.binned.{sample_id};\
+        python {cat_labeller_path} --feature density/{seq_type}/{sample_id}.{seq_type}.hexsum --labelled vae/{sample_id}/hexsum.binned.{sample_id} --n 10;\
+        python {cat_labeller_path} --feature fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt --labelled vae/{sample_id}/{k_long}mer.binned.{sample_id} --n 10;\
+        python {cat_labeller_path} --feature unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt --labelled vae/{sample_id}/{k_unique}mer.binned.{sample_id} --n 10;\
+        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_{k_long}mer --labels vae/{sample_id}/{k_long}mer.binned.{sample_id} --edges vae/{sample_id}/{k_long}mer.binned.{sample_id}.edges --legend_y_label \"Median {k_long}-mer count\";\
+        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_hexamer --labels vae/{sample_id}/hexsum.binned.{sample_id} --edges vae/{sample_id}/hexsum.binned.{sample_id}.edges --legend_y_label \"Hexamer";\
+        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_8mer --labels vae/{sample_id}/{k_unique}mer.binned.{sample_id} --edges vae/{sample_id}/{k_unique}mer.binned.{sample_id}.edges --legend_y_label \"Unique {k_unique}-mers/base\";\
         '
         """
