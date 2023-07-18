@@ -45,13 +45,14 @@ is_npy = args.npy
 canvas_size = args.canvas_size
 
 if custom_cmap != "":
-    print(custom_cmap)
     custom_cmap = custom_cmap.split()
     categorical = "T"
+    print(custom_cmap)
     print(len(custom_cmap))
 
 ########################################
 
+import sys
 import pandas as pd
 import datashader as ds
 
@@ -74,11 +75,17 @@ longer_cat_map = cc.b_glasbey_hv
 
 
 def load_labels_filter(df, labels, remove_classified):
-    """Load labels, filter out all labels that do not equal zero if requested"""
-    df['label'] = pd.Series([int(i.strip()) for i in open(labels)])
-    if remove_classified == "T":
-        df = df[df['label'] == 0]
-    return df
+    """Load labels, and check length matches coordinates. Filter out all rows with labels that 
+    do not equal zero if requested"""
+    labels_int = [int(i.strip()) for i in open(labels)]
+    if len(labels_int) == len(df):
+        df['label'] = pd.Series(labels_int)
+        if remove_classified == "T":
+            df = df[df['label'] == 0]
+        return df
+    else:
+        sys.exit(f"Length of label vector ({len(labels_int)}) doesn't match length of coordinates ({len(df)}). Exiting.")
+
 
 
 def load_coords(is_npy, zfile, labels, remove_classified):
