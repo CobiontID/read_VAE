@@ -42,6 +42,12 @@ if (read_basename[-2:] == "gz"):
 else:
     piped_read_file = "cat {}".format(read_file)
 
+# Hack to rename .fa files to .fasta to make FastK work
+if (read_basename[-2:] == "fa"):
+    read_basename_mv = read_basename + "sta"
+else:
+    read_basename_mv = read_basename
+
 
 # Defaults
 
@@ -116,7 +122,7 @@ rule read_hexsum:
             touch density/{seq_type}/logs/{sample_id}.submitted
             """
 
-# Generate FastK profiles of 31-mers for reads, then calculate the median 31-mer occurence across the whole set for each 60-mer in the read
+# Generate FastK profiles of 31-mers for reads, then calculate the median 31-mer occurence across the whole set for each 31-mer in the read
 # High scores may indicate repetitiveness in the case of reads, or patchy assembly
 rule read_fastk:
     input:
@@ -132,14 +138,14 @@ rule read_fastk:
 
         mkdir -p fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
         mkdir -p fastk/{seq_type}/k_{k_long}/medians/
-        cp -n {read_file} fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename}
+        cp -n {read_file} fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename_mv}
         #mv -n fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
 
         # make profile
         bsub -G {user_group} -n8 -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal \
         -o fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.out \
         -e fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.err -J \"{params.jobhash}\" \
-        \'{fastk_path}FastK -k{k_long} -T8 -M14 -p{ktab} ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename};
+        \'{fastk_path}FastK -k{k_long} -T8 -M14 -p{ktab} ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{read_basename_mv};
         {fastk_path}ProfMedianAll fastk/{seq_type}/k_{k_long}/profile/{sample_id}/*prof > \
         fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt\'
         touch fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.submitted
@@ -157,7 +163,7 @@ rule read_unique_kmers:
     shell:
         """
         mkdir -p unique_kmers/{seq_type}/k_{k_unique}/logs/
-        bsub -G {user_group} -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal\
+        bsub -G {user_group} -R "span[hosts=1] select[mem>1000] rusage[mem=1000]" -M1000 -q normal\
         -o unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.out \
         -e unique_kmers/{seq_type}/k_{k_unique}/logs/{sample_id}.{seq_type}.{k_unique}_mers.err -J \"{params.jobhash}\" \
         \'{un_count_path} --klength {k_unique} --file {read_file} --out unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt\'
@@ -229,7 +235,7 @@ rule wait_vae:
         bwait -w \"ended(\'{params.jobhash}\')\"
         """
 
-# Generate plots from VAE output, coloured by density, median 60-mers and unique 8-mers
+# Generate plots from VAE output, coloured by density, median 31-mers and unique 8-mers
 rule coloured_plots:
     input:
         "vae/logs/{}.done".format(sample_id),

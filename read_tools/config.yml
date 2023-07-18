@@ -1,17 +1,17 @@
 sample_id: ilAllOxya1
 species_name: Allophyes_oxyacanthae
-read_file: cat_leps/ilAllOxya1.cat.fasta.gz
+read_file: data/ilAllOxya1.cat.fasta.gz
 
-fastk_tab: kmer/k31/ilAllOxya1.k31.ktab
+fastk_tab: data/kmer/k31/ilAllOxya1.k31.ktab
 
-user_group: team301-grp
-tetra_count_path: /software/team301/user/cw21/kmer_counter/target/release/kmer-counter
-fastk_path: /software/team301/user/cw21/fastk/
-un_count_path: /software/team301/user/cw21/unique_kmers/target/release/unique-kmers
-hexamer_path: /software/team301/user/cw21/hexamer/hexsum
-vae_path: /software/team301/user/cw21/VAE/vae.py
-draw_vae_path: /software/team301/user/cw21/VAE/vae_draw.py
-cat_labeller_path: /software/team301/user/cw21/VAE/category_labels_from_cont.py
+user_group: user-group
+tetra_count_path: /software/kmer_counter/target/release/kmer-counter
+fastk_path: /software/fastk/
+un_count_path: /software/unique_kmers/target/release/unique-kmers
+hexamer_path: /software/hexamer/hexsum
+vae_path: VAE/vae.py
+draw_vae_path: plotting_tools/vae_draw.py
+cat_labeller_path: plotting_tools/category_labels_from_cont.py
 
-hextable_path: /software/team301/user/cw21/hexamer/cds.worm.hex
-conda_tf: /software/team301/user/cw21/conda/kmerviz
+hextable_path: /software/hexamer/cds.worm.hex
+conda_tf: /software/conda/kmerviz
