@@ -1,13 +1,14 @@
-# Generate two-dimensional representations and visualisations for read k-mer composition
+# Workflow to generate two-dimensional representations and visualisations of read k-mer composition
 
 ## Software requirements
-Install dependencies from source:
-- <a href="https://github.com/CobiontID/kmer-counter">kmer-counter</a> (required)
-- <a href="https://github.com/CobiontID/unique-kmer-counts">unique-kmer-counter</a>
-- <a href="https://github.com/CobiontID/fastk-medians">fastk-medians</a> (install `FastK` and `ProfMedianAll`)
-- <a href="https://github.com/richarddurbin/hexamer">Hexamer</a> (you will need `cds.worm.hex`).
+- Install dependencies from source:
+  - <a href="https://github.com/CobiontID/kmer-counter">kmer-counter</a> (required)
+  - <a href="https://github.com/CobiontID/unique-kmer-counts">unique-kmer-counter</a>
+  - <a href="https://github.com/CobiontID/fastk-medians">fastk-medians</a> (install `FastK` and `ProfMedianAll`)
+  - <a href="https://github.com/richarddurbin/hexamer">Hexamer</a> (you will need `cds.worm.hex`).
 
-Set up a Conda environment according to https://github.com/CobiontID/read_VAE/blob/main/env_kmerviz.yaml
+- Set up a Conda environment according with <a href="https://github.com/CobiontID/read_VAE/blob/main/env_kmerviz.yaml">this</a> configuration (see <a href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file">here</a> for instructions).
+- You will also need `vae.py`, `category_labels_from_cont.py`, and `vae_draw.py` from this repository. 
 
 ### Running the Snakemake pipeline
 
