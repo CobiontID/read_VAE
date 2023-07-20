@@ -12,7 +12,7 @@
 
 ### Running the Snakemake pipeline
 
-The included example set-up assumes that the script will be run on an LSF cluster.
+The included example set-up assumes that the script will be run on an LSF cluster. For instructions how to run the steps individually, see [below](###-How-to-run-steps-individually-on-the-commandline:).
 
 - Set up the configuration in <a href="https://github.com/CobiontID/read_VAE/blob/main/read_tools/config.yml">config.yml</a>
   - Set up the sample to be run: 
