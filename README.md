@@ -1,6 +1,11 @@
-# kmer_decomposition
+# Disentangling Cobionts and Contamination in Long-Read Genomic Data using Sequence Composition
+This repository contains tools to separate sequences from different sources by composition, as described here: https://cobiontid.github.io
 
-The documentation in this repository is currently still under construction.
+In many cases, samples of target organisms collected in the wild contain sequences from additional organisms. Identifying the source of a given sequence can be challenging if there are few reference datasets available from sufficiently closely related species. However, differences in sequence composition can nevertheless be used to separate different components of a sample.
+
+Learning two-dimensional embeddings of sequence composition (in this case tetranucleotide counts) with a Variational Autoencoder provides a framework to visually explore long-read datasets and detect contaminants or organisms interacting with the target. Sequence characteristics, such as estimated coding density and approximate read coverage, provide additional clues about the contents of the sample. For example, even without taxonomic labels, a microbe could be distinguished from an insect based on its higher density of coding sequences.
+
+A preprint describing the approach in detail is in preparation. The documentation in this repository is currently still under construction.
 
 ## Workflows
 ### <a href="https://github.com/CobiontID/read_VAE/tree/main/read_tools">Read k-mer decomposition and visualisation</a>
@@ -10,7 +15,8 @@ Tallies k-mers in a read set, reduce to two dimensions and visualise read cluste
 #### Example data set: _Erannis defoliaria_
 Decomposed read tetranucleotides from _Erannis defoliaria_ indicate the presence of bacteria in the sample (top). The reads are coloured by estimated coding density.
 
-<img src="https://github.com/CobiontID/read_VAE/blob/main/ilEraDefo1_hexamer.2d_plot_labelled.png" width=500>
+
+<img src="https://github.com/CobiontID/read_VAE/assets/10507101/943dc62d-f071-4952-a97b-9168f3329009" width=500>
 
 ### <a href="https://github.com/CobiontID/read_VAE/tree/main/contig_tools">Contig/scaffold k-mer decomposition and visualisation</a>
 
