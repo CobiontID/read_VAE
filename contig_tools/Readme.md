@@ -1,4 +1,4 @@
-# Generate two-dimensional representations and visualisations for contig composition
+# Workflow to generate two-dimensional representations and visualisations for contig composition
 
 ## Software requirements
 - Install dependencies from source:
@@ -11,12 +11,13 @@
 
 - You will also need `Select_contigs_reduced_multi.py`from this repository and, if using scaffold contact information, `hic_links.py`.
 
-## Running the pipeline
+## Running the Snakemake pipeline
+The included example set-up assumes that the script will be run on an LSF cluster. For instructions how to run the steps individually, see below.
 
 ### Setup
 This set-up assumes that the script will be run on an LSF cluster.
 
-- Set up the configuration in <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/contigviz_pipeline/config.yml">config.yml</a>
+- Set up the configuration in <a href="https://github.com/CobiontID/read_VAE/blob/main/contig_tools/config.yml">config.yml</a>
   - Set up the sample to be run: 
      - `sample_id`: The sample identifier (used to name output files)
      - `species_name`: The full species name 
@@ -35,8 +36,8 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `un_count_path`: Path to unique k-mer counter executable
      - `hexamer_path`: Path to hexamer executable (for estimating coding density)
      - `hextable_path`: Path to reference table for Hexamer
-     - `reduced_plot_path`: Path to <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/draw_contigs/Select_contigs_reduced_multi.py">script</a> to decompose k-mer counts and draw annotated contig selection graph.
-     - `hic_link_path`: Path to <a href="https://github.com/CobiontID/kmer_decomposition/blob/main/Hi-C/utils/hic_links.py">script</a> to read SALSA pairs file and generate connectivity annotations.
+     - `reduced_plot_path`: Path to <a href="https://github.com/CobiontID/read_VAE/blob/main/contig_tools/scripts/Select_contigs_reduced_multi.py">script</a> to decompose k-mer counts and draw annotated contig selection graph.
+     - `hic_link_path`: Path to <a href="https://github.com/CobiontID/read_VAE/blob/main/contig_tools/scripts/hic_links.py">script</a> to read SALSA pairs file and generate connectivity annotations.
      - `conda_tf`: The conda environment used for the decomposition and visualisation steps.
 
 ### Run
