@@ -72,7 +72,7 @@ def include_annots():
 
 # rules
 k = 4
-k_long = 60
+k_long = 31
 k_unique = 15 # 8 is default for reads
 
 # collapse k-mers and their reverse complement?
@@ -134,7 +134,7 @@ rule contig_hexsum:
             touch density/{seq_type}/logs/{sample_id}.submitted
             """
 
-# Generate FastK profiles of 60-mers for contigs, then calculate the median 60-mer occurence across the whole set for each 60-mer in the contig
+# Generate FastK profiles of 31-mers for contigs, then calculate the median 31-mer occurence across the whole set for each 31-mer in the contig
 # High scores may indicate repetitiveness in the case of contigs, or patchy assembly
 rule contig_fastk:
     input:
