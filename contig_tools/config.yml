@@ -1,22 +1,22 @@
 sample_id:  IcHarAxyr
 species_name: Harmonia axyridis
-contig_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/scaff/out.break.salsa/scaffolds_FINAL.fasta
+contig_file: /scaff/out.break.salsa/scaffolds_FINAL.fasta
 contig_noseq: None
 read_file: None
 
-pair_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/scaff/out.break.salsa/alignments_sorted.txt
-size_file: /lustre/scratch116/tol/projects/darwin/data/insects/Harmonia_axyridis/working/icHarAxyr1.hifiasm.20210509/scaff/out.break.salsa/scaffolds_FINAL.fasta.chrom.sizes
+pair_file: /scaff/alignments_sorted.txt
+size_file: /scaff/scaffolds_FINAL.fasta.chrom.sizes
 
 assembler: hifiasm
 seq_type: scaffolds
 collapse_kmers: collapsed
 
 user_group: team301-grp
-fastk_path: /software/team301/user/cw21/fastk/
-hexamer_path: /software/team301/hexamer/hexamer
-un_count_path: /software/team301/user/cw21/unique_kmers/target/release/unique-kmers
-tetra_count_path: /software/team301/user/cw21/kmer_counter/target/release/kmer-counter
-hextable_path: /software/team301/user/cw21/hexamer/cds.worm.hex
-reduced_plot_path: /software/team301/user/cw21/composition_scripts/Select_contigs_reduced_multi.py
-hic_link_path: /software/team301/user/cw21/composition_scripts/hic_links.py
-conda_tf: /software/team301/user/cw21/conda/kmerviz
+fastk_path: /software/fastk/
+hexamer_path: /software/hexamer
+un_count_path: /software/unique-kmers
+tetra_count_path: /software/kmer-counter
+hextable_path: /software/cds.worm.hex
+reduced_plot_path: /software/Select_contigs_reduced_multi.py
+hic_link_path: /software/hic_links.py
+conda_tf: /software/conda/kmerviz
