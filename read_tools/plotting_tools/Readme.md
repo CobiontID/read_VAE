@@ -28,3 +28,20 @@ Therefore limiting or consolidating classes may be advisable. In some cases, spe
 - **category_labels.py**: Generate a list of integer labels based on one of more lists of sequence identifiers. Can be used to colour read plots according to taxonomic classification from e.g. Kraken.
 - **category_labels_from_cont.py**: Generate bins based on n quantiles from a continuous vector
 - **category_labels_from_cont_manual.py**: Generate bins based on a predefined list of edges. Useful for e.g. slicing FastK median vectors according to the minima in a GenomeScope profile.
+
+## Get sequences from local peaks: peak_reads.py
+
+Detects local peaks in 2D space and samples a specified number of sequences near each peak. Returns a fasta file containing the sampled sequences, and a plot showing their coordinates. The fasta may then be used to query a reference database and identify components of the sample. Currently requires each read sequence to be in a single line in the fasta file, which may be gzip-ed.
+
+### Arguments
+`--coords`: Path to a file containing an array of 2D coordinates (required).
+- `-- ids`: Path to file containing sequence identifiers (required).
+- `--fasta`: Path to the fasta file containing the read sequences (required).
+- `--sampleid`: Name of sample, used to name output files
+- `--n_bins`: Number of bins to use in 2D histogram (default 100)
+- `--n_reads`: Number of reads per peak  to extract (default 2)
+- `--outdir`: Path to output directory
+
+### Example output
+<img src="https://github.com/CobiontID/read_VAE/assets/10507101/3fb32e91-2226-4fab-a845-198a2106b4e0" width=500>
+
