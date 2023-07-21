@@ -16,7 +16,7 @@ Tallies k-mers in a read set, reduce to two dimensions and visualise read cluste
 Decomposed read tetranucleotides from _Erannis defoliaria_ indicate the presence of bacteria in the sample (top). The reads are coloured by estimated coding density.
 
 
-<img src="https://github.com/CobiontID/read_VAE/assets/10507101/943dc62d-f071-4952-a97b-9168f3329009" width=500>
+<img src="https://github.com/CobiontID/read_VAE/assets/10507101/a408b0a5-cfe7-42f6-ac4f-f5b26db58fac" width=500>
 
 ### <a href="https://github.com/CobiontID/read_VAE/tree/main/contig_tools">Contig/scaffold k-mer decomposition and visualisation</a>
 
