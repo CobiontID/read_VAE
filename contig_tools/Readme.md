@@ -14,6 +14,8 @@
 ## Running the Snakemake pipeline
 The included example set-up assumes that the script will be run on an LSF cluster. For instructions how to run the steps individually, see below.
 
+Note that the contig/scaffold workflow currently does not use a VAE. The number of sequences typically does not require it, and results can be inconsistent on small sets of sequences and require manual parameter tuning. For large numbers of very short contigs, consider using the [workflow designed for long reads](https://github.com/CobiontID/read_VAE/blob/main/read_tools/Workflow.md) instead. To avoid problems with global distances, there is a PCA option (described below). 
+
 ### Setup
 This set-up assumes that the script will be run on an LSF cluster.
 
