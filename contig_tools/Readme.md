@@ -1,4 +1,6 @@
-# Workflow to generate two-dimensional representations and visualisations for contig composition
+# Workflow to generate two-dimensional representations and visualisations for contig/scaffold composition
+
+Generate an interactive HTML file to visualise decomposed tetranucleotide plots with binned annotations.
 
 ## Software requirements
 - Install dependencies from source:
