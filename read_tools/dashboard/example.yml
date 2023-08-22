@@ -1,0 +1,9 @@
+# Example configuration file
+
+tolid: ilApaMono1
+fasta: /genomic_data/ilApaMono1/pacbio/fasta/reads.fasta.gz
+basedir: /data/readviz_pipeline
+k: 60
+class_lists:
+- /data/ilApaMono1/reference_readids.txt
+remote_blast: True
