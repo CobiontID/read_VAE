@@ -13,7 +13,7 @@ A preprint describing the approach in detail is in preparation. In addition to t
 Tallies k-mers in a read set, reduce to two dimensions and visualise read clusters (defaults to tetranucleotides). Annotates read plots with additional sequence features, such as estimated coding density, approximate k-mer coverage and sequence k-mer diversity.
 
 #### Example data set: _Erannis defoliaria_
-Decomposed read tetranucleotides from _Erannis defoliaria_ indicate the presence of bacteria in the sample (top). The reads are coloured by estimated coding density.
+Decomposed read tetranucleotides from _Erannis defoliaria_ indicate the presence of bacteria in the sample (top). In this static plot, The reads are coloured by estimated coding density. The resulting data can also be explored [interactively](https://github.com/CobiontID/read_VAE/tree/main/read_tools/dashboard).
 
 <img src="https://github.com/CobiontID/read_VAE/assets/10507101/f5e0d934-2da8-4714-88da-96a7f81d8290" width=500>
 
@@ -33,6 +33,9 @@ Read k-mer counts are reduced to two dimensions following the method of <a href=
 
 #### [Plotting tools for reads](https://github.com/CobiontID/read_VAE/tree/main/read_tools/plotting_tools)
 Generate colour-coded plots of 2D representations learned by the VAE.
+
+#### [Interactive read visualisations](https://github.com/CobiontID/read_VAE/tree/main/read_tools/dashboard)
+Interactively filter and query annotated 2D representations of read data.
 
 ### [Visualisations for contigs](https://github.com/CobiontID/read_VAE/tree/main/contig_tools)
 Workflow and utilities to generate interactive HTML file of decomposed tetranucleotide plots with binned annotations.
