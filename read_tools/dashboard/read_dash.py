@@ -54,6 +54,7 @@ from collections import defaultdict
 hv.extension('bokeh', logo=False)
 
 #%%
+# Skip this cell to specify config manually
 parser = argparse.ArgumentParser(
     description='Dashboard to visualise 2D read embeddings.')
 
@@ -371,7 +372,10 @@ def box_selected_data_dl(box, df):
 
 
 def blast_function():
-    """ On local blast server:"""
+    """ Use local blast server (default).
+    This function sends the retrieved fasta record to send the query to a local server, and returns the first five lines of the output.
+    To use a different setup, simply modify "blast_cmd" in the line below.
+    """
     blast_cmd = "timeout 300s curl -T temp.fa http://172.27.25.136:35227 | head -n5"
     blast = subprocess.run(blast_cmd, capture_output=True, shell=True)
     if blast.returncode == 0:
@@ -379,11 +383,12 @@ def blast_function():
     else:
         return f"Non-zero return code {blast} {blast.stderr.decode('utf-8')}"
 
-    #seq = "{}".format(open("temp.fa", "r").read())
-    #result_handle = qblast("blastn", "nt", seq, megablast=True)
-    #blast_record = NCBIXML.read(result_handle)
-    # return blast_record.alignments[0].title
-    # print(blast_record.alignments[0].title)
+def blast_remote():
+    """This function will be called if the configuration specifies that the remote blast option should be used."""
+    seq = "{}".format(open("temp.fa", "r").read())
+    result_handle = qblast("blastn", "nt", seq, megablast=True)
+    blast_record = NCBIXML.read(result_handle)
+    return blast_record.alignments[0].title
 
 
 def make_panel(scatter, fasta):
@@ -523,6 +528,8 @@ def make_panel(scatter, fasta):
 # %%
 #!wget https://github.com/CobiontID/CobiontID.github.io/raw/main/examples/ilCarKade1_204_downsampled.npz
 
+# Load configuration
+
 with open(config_file, 'r') as file:
     cfg = yaml.safe_load(file)
 
@@ -537,7 +544,19 @@ def ids_width(reads):
 
 tolid = cfg['tolid']
 basedir = cfg["basedir"]
-k = cfg["k"]
+
+if "k" in cfg:
+    k = cfg["k"]
+else:
+    k = 31
+
+# Override default blast function
+if "remote_blast" in cfg:
+    if cfg["remote_blast"] is True:
+        from Bio.Blast.NCBIWWW import qblast
+        from Bio.Blast import NCBIXML
+        blast_function = blast_remote
+    
 class_lists = cfg["class_lists"]
 if class_lists is None:
     class_lists = []
@@ -560,16 +579,18 @@ default_path_dict = {
     "vae_path": f"{basedir}/vae/{tolid}/{tolid}.vae.out.2d.0",
     "fastk_path": f"{basedir}/fastk/reads/k_{k}/medians/{tolid}.median_{k}mer.txt",
     "hexamer_path": f"{basedir}/density/reads/{tolid}.reads.hexsum",
-    "reads_path": f"{basedir}/kmer_counts/reads/k_4/ids/{tolid}.reads.ids.txt"
+    "read_ids_path": f"{basedir}/kmer_counts/reads/k_4/ids/{tolid}.reads.ids.txt"
     }
 
 # Override default path if specified
 if "vae_path" in cfg:
     default_path_dict["vae_path"] = cfg["vae_path"]
-if "reads_path" in cfg:
-    default_path_dict["reads_path"] = cfg["reads_path"]
+if "fastk_path" in cfg:
+    default_path_dict["fastk_path"] = cfg["fastk_path"]
+if "read_ids_path" in cfg:
+    default_path_dict["read_ids_path"] = cfg["read_ids_path"]
 
-width = ids_width(default_path_dict["reads_path"])
+width = ids_width(default_path_dict["read_ids_path"])
 
 print(cfg)
 # %%
@@ -584,10 +605,10 @@ def load_data_dict(default_path_dict, width, plain_scatter):
         data_dict = {
                     "fastk": np.loadtxt(default_path_dict["fastk_path"], dtype="int64"),
                     "annot": np.loadtxt(default_path_dict["hexamer_path"], dtype="float32"),
-                    "reads": np.loadtxt(default_path_dict["reads_path"], dtype="U{}".format(width)),
+                    "reads": np.loadtxt(default_path_dict["read_ids_path"], dtype="U{}".format(width)),
                     }
     else:
-        data_dict = {"reads": np.loadtxt(default_path_dict["reads_path"], dtype="U{}".format(width))}
+        data_dict = {"reads": np.loadtxt(default_path_dict["read_ids_path"], dtype="U{}".format(width))}
         data_dict["annot"] = np.array((len(data_dict["reads"])-2)*[0] + [0.01, 1.], dtype="float32")
         data_dict["fastk"] = np.array(len(data_dict["reads"])*[1], dtype="int32")
 
