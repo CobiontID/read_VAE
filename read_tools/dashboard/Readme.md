@@ -23,6 +23,8 @@ Here,`$port` is the number of an open port on the local machine. `example.yml` i
 If the dashboard is run on a remote machine, connecting with the SSH extension in Visual Studio Code and entering the above in the terminal may be convenient, as port forwarding will be handled automatically. When prompted "Do you want Code to open the external website?", clicking "open" will open the dashboard in a browser window.
 
 ### Setting up the configuration file
+A basic example configuration file can be found [here](https://github.com/CobiontID/read_VAE/blob/main/read_tools/dashboard/example.yml).
+
 #### Basic configuration
 - `tolid`: Sample identifier (this should match the identifier used to run the pipeline, unless the paths to the required files are manually set)
 - `fasta`: Path to the fasta file containing the sequences of the reads. Required to launch blast queries. It is assumed that each sequence record has a single line, unless indexing is enabled.
