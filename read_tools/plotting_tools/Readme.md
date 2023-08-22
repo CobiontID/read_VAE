@@ -43,5 +43,4 @@ Detects local peaks in 2D space and samples a specified number of sequences near
 - `--outdir`: Path to output directory
 
 ### Example output
-<img src="https://github.com/CobiontID/read_VAE/assets/10507101/3fb32e91-2226-4fab-a845-198a2106b4e0" width=500>
-
+<img src="https://github.com/CobiontID/read_VAE/assets/10507101/b5765e71-b213-4821-9be7-4c7b9dd740e1" width=500>
