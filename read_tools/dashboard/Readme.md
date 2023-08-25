@@ -18,7 +18,7 @@ The server can be started with:
 
 ```panel serve --port=$port --address="0.0.0.0" --allow-websocket-origin=localhost:$port --show read_dash.py --args --config example.yml```
 
-Here,`$port` is the number of an open port on the local machine. `example.yml` is the path to the sample configuration file. See below for more information on configuration. For especially large datasets, it may be necessary to set `--session-token-expiration` to a larger value. If the configuration file is updated after the app has been launched, refreshing the browser window will prompt all of the data to be reloaded using the updated file paths or class lists, if supplied.
+Here,`$port` is the number of an open port on the local machine. `example.yml` is the path to the sample configuration file. See below for more information on configuration. The required packages are included in [env_kmerviz.yml](https://github.com/CobiontID/read_VAE/blob/main/env_kmerviz.yaml). For especially large datasets, it may be necessary to set `--session-token-expiration` to a larger value. If the configuration file is updated after the app has been launched, refreshing the browser window will prompt all of the data to be reloaded using the updated file paths or class lists, if supplied.
 
 If the dashboard is run on a remote machine, connecting with the SSH extension in Visual Studio Code and entering the above in the terminal may be convenient, as port forwarding will be handled automatically. When prompted "Do you want Code to open the external website?", clicking "open" will open the dashboard in a browser window.
 
@@ -30,7 +30,7 @@ A basic example configuration file can be found [here](https://github.com/Cobion
 - `fasta`: Path to the fasta file containing the sequences of the reads. Required to launch blast queries. It is assumed that each sequence record has a single line, unless indexing is enabled.
 - `basedir`: Path to the base directory containing outputs from the read VAE workflow (but see details on how to override defaults).
 - `class_lists`: One or more files containing the identifiers of reads belong to different classes. Each file should be on a separate line, preceded by a dash. If left blank, class labels will not be used.
-- `remote_blast`: Specify `True` to use NCBI's servers for blast queries. Querying a local server may give faster turnaround.
+- `remote_blast`: Specify `True` to use NCBI's servers for blast queries. Querying a local server may give faster turnaround (see [here](https://github.com/CobiontID/read_VAE/blob/main/read_tools/dashboard/minimal_blast_server.py) for an example of a minimal setup).
 
 #### Options to manually configure paths
 - `k`: The k-mer size used with FastK in the pipeline (used to retrieve the median k-mer count file). If not specified, k defaults to 31.
