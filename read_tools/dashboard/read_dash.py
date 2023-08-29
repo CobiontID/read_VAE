@@ -530,16 +530,18 @@ def make_panel(scatter, fasta):
 
 # Load configuration
 
+print("Loading configuration")
 with open(config_file, 'r') as file:
     cfg = yaml.safe_load(file)
 
 
 def ids_width(reads):
-#""" Get max length for read ids to prevent truncation by np.loadtxt() """
+    """ Get max length for read ids to prevent truncation by np.loadtxt() """
     wc = subprocess.run(["wc", "-L", reads], capture_output=True)
     if wc.returncode == 0:
         return int(wc.stdout.decode('utf-8').split()[0])
     else:
+        print(f"Couldn't get width for read identifiers in {reads}, check configuration")
         sys.exit(1)
 
 tolid = cfg['tolid']
@@ -587,6 +589,8 @@ if "vae_path" in cfg:
     default_path_dict["vae_path"] = cfg["vae_path"]
 if "fastk_path" in cfg:
     default_path_dict["fastk_path"] = cfg["fastk_path"]
+if "hexamer_path" in cfg:
+    default_path_dict["hexamer_path"] = cfg["hexamer_path"]
 if "read_ids_path" in cfg:
     default_path_dict["read_ids_path"] = cfg["read_ids_path"]
 
@@ -632,7 +636,6 @@ assert os.path.isfile(fasta)
 # %%
 #@title
 
-#pn.extension(template='bootstrap', sizing_mode="scale_both", title="Readviz")
 sample_id = tolid
 
 def load_dash_wrapper():
