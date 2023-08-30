@@ -37,6 +37,7 @@ A basic example configuration file can be found [here](https://github.com/Cobion
 - `vae_path`: A custom path pointing to the 2D coordinates to be used for plotting. Input files may either be in text format, e.g. ilApaMono1_16.vae.out.2d.0, or in .npy format (the latter is preferable for large datasets, since it allows faster loading).
 - `read_ids_path`: Custom path to read identifiers
 - `fastk_path`: Custom path pointing to the file containing median read k-mer counts
+- `hexamer_path`: Custom path pointing to the file containing coding density estimates
   
 #### Use indexed fasta files
 For large readsets, it may be useful to index the fasta file containing the reads with `samtools faidx`, in order to retrieve sequences more quickly. Indexing also makes retrieving records more convenient when sequences are split across multiple lines. To make use of an index, include these lines:
