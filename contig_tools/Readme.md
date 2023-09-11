@@ -7,7 +7,7 @@ Generate an interactive HTML file to visualise decomposed tetranucleotide plots 
   - <a href="https://github.com/CobiontID/kmer-counter">kmer-counter</a> (required)
   - <a href="https://github.com/CobiontID/unique-kmer-counts">unique-kmer-counter</a>
   - <a href="https://github.com/CobiontID/fastk-medians">fastk-medians</a> (install `FastK` and `ProfMedianAll`)
-  - <a href="https://github.com/richarddurbin/hexamer">Hexamer</a> (you will need `cds.worm.hex`).
+  - <a href="https://github.com/richarddurbin/hexamer">Hexamer</a> (you will need to generate the reference table`cds.worm.hex` by running `hextable -o worm.hex worm.coding`. The input file `worm.coding` contains coding sequences).
 
 - Set up a Conda environment according with <a href="https://github.com/CobiontID/read_VAE/blob/main/env_kmerviz.yaml">this</a> configuration (see <a href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file">here</a> for instructions).
 
