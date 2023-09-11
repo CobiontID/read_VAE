@@ -85,3 +85,12 @@ python ./VAE/vae_draw.py --zfile ${outdir}/sampleid.vae.out.2d.0 --outdir ${outd
 python ./VAE/vae_draw.py --zfile ${outdir}/sampleid.vae.out.2d.0 --outdir ${outdir}/ --fignames sampleid_hexamer --labels hexsum.binned.sampleid --edges hexsum.binned.sampleid.edges --legend_y_label "Hexamer"
 python ./VAE/vae_draw.py --zfile ${outdir}/sampleid.vae.out.2d.0 --outdir ${outdir}/ --fignames sampleid_8mer --labels 8mer.binned.sampleid --edges 8mer.binned.sampleid.edges --legend_y_label "Unique 8-mers/base"
 ```
+
+## Notes
+### Very large data sets
+For an initial glance at a dataset, switching off the CB correction, increasing the batch size, and reducing the number of epochs can speed up VAE training (see [here](https://github.com/CobiontID/read_VAE/tree/main/read_tools/VAE)).
+
+The default workflow is set up so that the entire k-mer count table is loaded into memory while training the VAE. Given a large number of sequences, this table may be larger than the specified defaults and/or available RAM. In this case, it may be useful to downsample the dataset prior to training. Alternatively, it is possible to split the input data into smaller pre-processed batches (this code is currently not production-ready).
+
+### Short reads
+Short read datasets with many sequences can lead to computational bottlenecks, as noted above. In addition, shorter sequences will inherently behave differently. Consider reducing the threshold `-T`in `hexamer`, as the default will likely result in a very small number of sequences being assigned values greater than zero. They will also produce more sparse k-mer count tables. Reducing `k` when counting unique k-mers may therefore be advantageous.
