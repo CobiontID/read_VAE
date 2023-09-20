@@ -132,11 +132,15 @@ def get_category_labels(read_ids, label_files):
         print(f"Adding extra bin containing intersect of sets: {i + 2}")
     return mask
 
-def load_df(data, samples_bin=50, max_reads=50000000):
+def load_df(data, samples_bin=50, max_reads=50000000, keep_labelled=True):
     """Determine whether to downsample the dataset and fetch indices, then load into dataframe"""
     if len(data['vae']) > max_reads:
         print("Downsampling data.")
         idxs = downsample(data["vae"], samples_bin)
+        # Keep labelled reads?
+        if keep_labelled == True:
+            labelled_idxs = np.where(data['classes'] > 0)[0]
+            idxs = np.union1d(idxs, labelled_idxs)
         print("Downsampled.")
     else:
         idxs = np.array(range(len(data['vae'])))
