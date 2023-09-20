@@ -23,7 +23,7 @@ parser.add_argument("--remove", help="File specifying reads to remove before dec
 parser.add_argument("--latent_dim", help="Number of latent dimensions", default=2, type=int)
 parser.add_argument("--reduce_beta", help="Reduce weight on KL loss (beta) if variance indicates posterior collapse (enabled by default)", default="T", choices=["T", "F"])
 parser.add_argument("--learning_rate", help="Set learning rate", type=float, default=0.001)
-parser.add_argument("--latent_format", help="Format to store latent reoresentations in (defaults to .txt, but .npy preferable for large datasets)", choices=["txt", "npy"])
+parser.add_argument("--latent_format", help="Format to store latent reoresentations in (defaults to .txt, but .npy preferable for large datasets)", default="txt", choices=["txt", "npy"])
 parser.add_argument("--cb", help="Apply CB correction (enabled by default)", default="T", choices=["T", "F"])
 
 args = parser.parse_args()
