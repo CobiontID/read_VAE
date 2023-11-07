@@ -538,7 +538,6 @@ print("Loading configuration")
 with open(config_file, 'r') as file:
     cfg = yaml.safe_load(file)
 
-
 def ids_width(reads):
     """ Get max length for read ids to prevent truncation by np.loadtxt() """
     wc = subprocess.run(["wc", "-L", reads], capture_output=True)
@@ -598,7 +597,8 @@ if "hexamer_path" in cfg:
 if "read_ids_path" in cfg:
     default_path_dict["read_ids_path"] = cfg["read_ids_path"]
 
-width = ids_width(default_path_dict["read_ids_path"])
+#print("Getting maximum identifier length")
+#width = ids_width(default_path_dict["read_ids_path"])
 
 print(cfg)
 # %%
@@ -607,23 +607,34 @@ if "no_annot" in cfg:
     if cfg["no_annot"] is True:
         plain_scatter = "True"
 
-def load_data_dict(default_path_dict, width, plain_scatter):
+def load_ids_maxwidth(reads):
+    df = pd.read_csv(reads, sep="\n", header=None, dtype=str)
+    width = df[0].map(len).max()
+    return df.to_numpy(dtype="U{}".format(width)).flatten()
+
+
+def load_data_dict(default_path_dict, plain_scatter): # width, 
     """Retrieve data dictionary to pass to dataframe loader"""
     if plain_scatter == "False":
         data_dict = {
-                    "fastk": np.loadtxt(default_path_dict["fastk_path"], dtype="int64"),
-                    "annot": np.loadtxt(default_path_dict["hexamer_path"], dtype="float32"),
-                    "reads": np.loadtxt(default_path_dict["read_ids_path"], dtype="U{}".format(width)),
+                    #"fastk": np.loadtxt(default_path_dict["fastk_path"], dtype="int64"),
+                    "fastk": pd.read_csv(default_path_dict["fastk_path"], sep="\n", header=None, dtype="int32").to_numpy().flatten(),
+                    #"annot": np.loadtxt(default_path_dict["hexamer_path"], dtype="float32"),
+                    "annot": pd.read_csv(default_path_dict["hexamer_path"], sep="\n", header=None, dtype="float32").to_numpy().flatten(),
+                    #"reads": np.loadtxt(default_path_dict["read_ids_path"], dtype="U{}".format(width)),
+                    "reads": load_ids_maxwidth(default_path_dict["read_ids_path"]),
                     }
     else:
-        data_dict = {"reads": np.loadtxt(default_path_dict["read_ids_path"], dtype="U{}".format(width))}
+        #data_dict = {"reads": np.loadtxt(default_path_dict["read_ids_path"], dtype="U{}".format(width))}
+        data_dict = {"reads": load_ids_maxwidth(default_path_dict["read_ids_path"])}
         data_dict["annot"] = np.array((len(data_dict["reads"])-2)*[0] + [0.01, 1.], dtype="float32")
         data_dict["fastk"] = np.array(len(data_dict["reads"])*[1], dtype="int32")
 
     if ".npy" in default_path_dict["vae_path"]:
         data_dict['vae'] = np.load(default_path_dict["vae_path"])
     else:
-        data_dict['vae'] = np.loadtxt(default_path_dict["vae_path"], dtype="float32")
+        #data_dict['vae'] = np.loadtxt(default_path_dict["vae_path"], dtype="float32")
+        data_dict['vae'] = pd.read_csv(default_path_dict["vae_path"], header=None, sep="\t", dtype="float32").to_numpy()
     
     data_dict["classes"] = get_category_labels(data_dict["reads"], class_lists)
 
@@ -644,7 +655,7 @@ sample_id = tolid
 
 def load_dash_wrapper():
     print("Loading data...")
-    data_dict = load_data_dict(default_path_dict, width, plain_scatter)
+    data_dict = load_data_dict(default_path_dict, plain_scatter) # width, 
     # Show up to 15M points with 250 samples per bin
     xy = load_df(data_dict, 250, 15000000)
     print("Loading dashboard elements...")
