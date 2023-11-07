@@ -30,6 +30,11 @@ collapsed = config["collapse_kmers"]
 
 contig_basename = contig_file.split("/")[-1]
 
+if assembler == "hifiasm":
+    sed_pattern = "rd:i:"
+elif assembler == "hifiasm-meta":
+    sed_pattern = "dp:f:"
+
 # Pipe either fasta or decompressed .fa.gz
 if (contig_basename[-2:] == "gz"):
     piped_contig_file = "gunzip -c {}".format(contig_file)
@@ -51,15 +56,15 @@ def hash_jobname(jobname):
 
 # Build list of jobs to wait for
 def all_hashes():
-    wait_rules = ["{}_tetra", "{}_hex", "{}_fastk", "{}_unique"]
+    wait_rules = ["{}_tetra", "{}_hex", "{}_fastk", "{}_unique", "{}_gc"]
     if (pair_file != "None"):
         wait_rules.append("{}_hic")
     return " && ".join(["ended('{}')".format(hash_jobname(i.format(sample_id))) for i in wait_rules])
 
 # Add plot annotation fields depending on provided input
 def include_annots():
-    annot_fields = "Hexamer FastK Unique_{}mers".format(k_unique)
-    annot_files = "density/{0}/{1}.{0}.hexsum fastk/{0}/k_{2}/medians/{1}.median_{2}mer.txt unique_kmers/{0}/k_{3}/{1}.{3}_mers.txt".format(seq_type, sample_id, k_long, k_unique)
+    annot_fields = "Hexamer FastK Unique_{}mers GC".format(k_unique)
+    annot_files = "density/{0}/{1}.{0}.hexsum fastk/{0}/k_{2}/medians/{1}.median_{2}mer.txt unique_kmers/{0}/k_{3}/{1}.{3}_mers.txt gc/{1}.{0}.gc".format(seq_type, sample_id, k_long, k_unique)
     if contig_noseq != "None":
         annot_fields += " Coverage"
         annot_files += " coverage/{0}.{1}.coverage.txt".format(sample_id, seq_type)
@@ -72,7 +77,7 @@ def include_annots():
 
 # rules
 k = 4
-k_long = 31
+k_long = 60
 k_unique = 15 # 8 is default for reads
 
 # collapse k-mers and their reverse complement?
@@ -86,13 +91,14 @@ base_out = "kmer_counts/{}/k_{}".format(seq_type, k)
 rule all:
     input:
         "{}/collapsed/logs/{}.submitted".format(base_out, sample_id),
+        "gc/logs/{}.submitted".format(sample_id),
         "density/{}/logs/{}.submitted".format(seq_type, sample_id),
         "fastk/{}/k_{}/logs/{}.fastk.submitted".format(seq_type, k_long, sample_id),
         "{}.draw.cmd.txt".format(sample_id),
         "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type),
         "coverage/{}.{}.coverage.txt".format(sample_id, seq_type) if (contig_noseq != "None") else [],
         "connections/logs/{}.submitted".format(sample_id) if (pair_file != "None") else [], 
-        "html/logs/{}.submitted".format(sample_id)
+        "html/logs/{}.submitted".format(sample_id),
 
 # Count contig tetranucleotides and store them in a .npy file
 # Also outputs a text file with all contig ids, which is needed for selection widget
@@ -116,6 +122,25 @@ rule contig_tetra:
          echo "submitted as {params.jobhash}"
          """
 
+# base_out = "kmer_counts/{}/k_{}".format(seq_type, k)
+
+rule contig_gc:
+    input:
+        {contig_file}
+    output:
+        "gc/logs/{}.submitted".format(sample_id),
+    params:
+        jobhash = hash_jobname("{}_gc".format(sample_id))
+    shell:
+        """
+        mkdir -p gc/logs/
+        bsub -G {user_group} -R \"span[hosts=1] select[mem>1000] rusage[mem=1000]\" -M1000 -q normal \
+         -o gc/logs/{sample_id}.log -e gc/logs/{sample_id}.err -J \"{params.jobhash}\" \
+         \'{tetra_count_path} --file {contig_file} --collapse 1 --ids gc/{sample_id}.{seq_type}.ids.txt --klength 1 --out gc/{sample_id}.{seq_type}.gc.npy; rm gc/{sample_id}.{seq_type}.ids.txt\'
+         touch gc/logs/{sample_id}.submitted
+         echo "submitted as {params.jobhash}"
+         """
+
 # Calculate approximate coding density using a modified version of hexamer, which takes the sum of all putative coding windows divided by sequence length
 rule contig_hexsum:
     input:
@@ -134,7 +159,7 @@ rule contig_hexsum:
             touch density/{seq_type}/logs/{sample_id}.submitted
             """
 
-# Generate FastK profiles of 31-mers for contigs, then calculate the median 31-mer occurence across the whole set for each 31-mer in the contig
+# Generate FastK profiles of 60-mers for contigs, then calculate the median 60-mer occurence across the whole set for each 60-mer in the contig
 # High scores may indicate repetitiveness in the case of contigs, or patchy assembly
 rule contig_fastk:
     input:
@@ -153,7 +178,7 @@ rule contig_fastk:
         #mv -n fastk/{seq_type}/k_{k_long}/profile/{sample_id}/
 
         # make profile
-        bsub -G {user_group} -n10 -R "span[hosts=1] select[mem>12000] rusage[mem=12000]" -M12000 -q normal \
+        bsub -G {user_group} -n10 -R "span[hosts=1] select[mem>16000] rusage[mem=16000]" -M16000 -q normal \
         -o fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.out \
         -e fastk/{seq_type}/k_{k_long}/logs/{sample_id}.fastk.err -J \"{params.jobhash}\" \
         \'{fastk_path}FastK -k{k_long} -p -T10 ./fastk/{seq_type}/k_{k_long}/profile/{sample_id}/{contig_basename_mv};
@@ -186,7 +211,7 @@ rule contig_coverage:
     output:
         "coverage/{}.{}.coverage.txt".format(sample_id, seq_type)
     shell:
-        """grep \"S.*ptg\" {contig_noseq} | sed -n \'s/.*rd:i:\([0-9]\)/\\1/p\' > coverage/{sample_id}.{seq_type}.coverage.txt"""
+        """grep \"S.*tg\" {contig_noseq} | sed -n \'s/.*{sed_pattern}\([0-9]\)/\\1/p\' > coverage/{sample_id}.{seq_type}.coverage.txt"""
 
 # If a pair file is provided, generate matrix of counts
 rule hic_scaffs:
@@ -218,6 +243,7 @@ rule plot_umap_txt:
         "coverage/{}.{}.coverage.txt".format(sample_id, seq_type) if (contig_noseq != "None") else [],
         "unique_kmers/{2}/k_{0}/logs/{1}.{2}.{0}_mers.submitted".format(k_unique, sample_id, seq_type),
         "{}/{}/logs/{}.submitted".format(base_out, collapsed, sample_id),
+        "gc/logs/{}.submitted".format(sample_id),
         "density/{}/logs/{}.submitted".format(seq_type, sample_id),
         "fastk/{}/k_{}/logs/{}.fastk.submitted".format(seq_type, k_long, sample_id),
         "connections/logs/{}.submitted".format(sample_id) if (pair_file != "None") else [],
@@ -230,6 +256,8 @@ rule plot_umap_txt:
         echo \"python {reduced_plot_path} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile {sample_id}_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt \
             --annotfiles \\"density/{seq_type}/{sample_id}.{seq_type}.hexsum fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt\\" --annotnames \\"Hexamer FastK Unique_{k_unique}mers\\" --speciesname {sample_id}\" > {sample_id}.draw.cmd.txt
         bwait -w \"{params.hashes}\"
+        python -c \'import numpy as np; a = np.load(\"gc/{sample_id}.{seq_type}.gc.npy\"); np.savetxt(\"gc/{sample_id}.{seq_type}.gc\", (a/a.sum(axis=1)[:,None])[:,1])\'
+
         """
         #\"ended(\'{params.jobhash_hex}\') && ended(\'{params.jobhash_tetra}\') && ended(\'{params.jobhash_fastk}\') && ended(\'{params.jobhash_unique}\')\"
 
@@ -248,7 +276,13 @@ rule selection_plot:
         bsub -G {user_group} -R "span[hosts=1] select[mem>1000] rusage[mem=1000]" -M1000 -q normal \
         -o html/logs/{sample_id}_{seq_type}_multi_select{sample_id}.out \
         -e html/logs/{sample_id}_{seq_type}_multi_select{sample_id}.err \
-        \"python {reduced_plot_path} --seqtype {seq_type} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile html/{sample_id}_{seq_type}_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt --annotfiles \\"{params.annot[1]}\\" --annotnames \\"{params.annot[0]}\\" --speciesname {sample_id}\"
+        \"python {reduced_plot_path} --pca F --seqtype {seq_type} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile html/{sample_id}_{seq_type}_umap_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt --annotfiles \\"{params.annot[1]}\\" --annotnames \\"{params.annot[0]}\\" --speciesname {sample_id}; \
+        #Uncomment lines below to produce PCA or GC versus coverage plots.
+        #PCA:
+        #python {reduced_plot_path} --pca T --seqtype {seq_type} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile html/{sample_id}_{seq_type}_pca_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt --annotfiles \\"{params.annot[1]}\\" --annotnames \\"{params.annot[0]}\\" --speciesname {sample_id}; \
+        # GC vs coverage:
+        #if  [ "{contig_noseq}" != "None" ]; then python {reduced_plot_path} --pca T --seqtype {seq_type} --infile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile html/{sample_id}_{seq_type}_gc_cov_multi_select.html --seqidfile {base_out}/ids/{sample_id}.{seq_type}.ids.txt --annotfiles \\"{params.annot[1]}\\" --annotnames \\"{params.annot[0]}\\" --speciesname {sample_id} --override_y coverage/{sample_id}.{seq_type}.coverage.txt --override_x gc/{sample_id}.{seq_type}.gc --y_scale log; fi;
+        \"
 
         '
         """
