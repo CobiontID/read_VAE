@@ -26,8 +26,8 @@ This set-up assumes that the script will be run on an LSF cluster.
      - `sample_id`: The sample identifier (used to name output files)
      - `species_name`: The full species name 
      - `contig_file`: Path to the fasta (or fasta.gz) containing the contig sequences
-     - `contig_noseq`: Path to hifiasm .noseq.gfa to calculate coverage, optional (if not using hifiasm, set to None)
-     - `assembler`: Assembler, e.g. hifiasm
+     - `contig_noseq`: Path to hifiasm .noseq.gfa to calculate coverage, optional (if not using `hifiasm` or `hifiasm-meta`, set to None)
+     - `assembler`: Assembler, e.g. `hifiasm` or `hifiasm-meta` (required to extract coverage information from the .gfa file)
      - `seq_type`: Type of sequence input for labelling purposes, e.g. "p_ctg" or "scaffolds"
      - `collapse_kmers`: Specify if k-mers should be canonicalised (collapsed) or not (uncollapsed)
      - `pair_file`: Pair file with scaffold contacts from SALSA or YaHs, optional (if not using Hi-C, set None). The relevant file will commonly be named `alignments_sorted.txt`.
@@ -50,11 +50,12 @@ In a conda environment with <a href="https://snakemake.readthedocs.io/en/stable/
 ### Run steps individually on the commandline
 - Follow steps 1-4 outlined [here](https://github.com/CobiontID/read_VAE/blob/main/read_tools/Workflow.md) using the contig or scaffold sequences as input. Set k for `unique-kmers` to 15 to accommodate longer sequences.
 - Extract coverage if using a suitable hifiasm assembly as input:
-`grep "S.*ptg" contigs_sampleid.noseq.gfa | sed -n 's/.*rd:i:\([0-9]\)/\1/p' > sampleid.coverage.txt`
+`grep "S.*tg" contigs_sampleid.noseq.gfa | sed -n 's/.*rd:i:\([0-9]\)/\1/p' > sampleid.coverage.txt`
 - If applicable, get connections between scaffolds
 - `python hic_links.py --pairfile alignments_sorted.txt --sizefile out_scaffolds_final.fa.chrom.sizes --outfile sampleid.connections.npy --outconn  isconnected.sampleid.txt --outconnbp isconnected.sampleid.normbp.txt`
 - Generate the plot:
   - Using a set of contigs as an example:`python Select_contigs_reduced_multi.py --seqtype p_ctg --infile sampleid.p_ctg.tetra.collapsed.npy --outfile sampleid_p_ctg_multi_select.html --seqidfile sampleid.p_ctg.ids.txt --annotfiles "sampleid.p_ctg.hexsum sampleid.median_31mer.txt sampleid.15_mers.txt sampleid.coverage.txt" --annotnames "Hexamer FastK Unique_15mers Coverage" --speciesname sampleid`
   - `--annotnames`contains a list of labels for each annotation vector that is supplied, and `--annotfiles` contains the corresponding list of files. If multiple files and labels are supplied, the lists must be encloded in quotation marks.
+  - Unless `--ignore_sizes T` is set, contig sizes will be scaled by their lengths, with `--rescale_max` and `--rescale_max` defining the sizes of the largest and smallest contigs relative to the largest plot dimension (the parameter defines roughly how many times the largest or smallest point should fit into the plot).
   - To include scaffold connections, add "isconnected.sampleid.txt isconnected.sampleid.normbp.txt" and "Is_Connected Connections_Base" to the lists. If no coverage information is available, omit "sampleid.coverage.txt" and "Coverage", and so on.
   - By default, the code will use UMAP to represent the tetranucleotide counts, but there is a commandline argument to use PCA instead (run the script with --help for details).
