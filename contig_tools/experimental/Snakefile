@@ -1,0 +1,241 @@
+# cw21@sanger.ac.uk
+
+# This Snakefile has been simplifed to run without submitting individual tasks to an LSF queue.
+# The structure of the configuration file is the same, with the exception of user_group, which can be omitted
+# To run: snakemake --jobs 16
+# The number of cores to allocate to FastK can be configured below.
+# The other rules do not require parallel processing.
+
+cores = 10 # Number of cores to use with FastK.
+
+
+configfile: "config.yml"
+
+sample_id = config['sample_id']
+species_name = config['species_name']
+contig_file = config['contig_file']
+contig_noseq = config['contig_noseq']
+read_file = config['read_file']
+assembler = config['assembler']
+
+pair_file = config['pair_file']
+size_file = config['size_file']
+
+#user_group = config['user_group']
+fastk_path = config['fastk_path']
+un_count_path = config['un_count_path']
+tetra_count_path = config['tetra_count_path']
+hexamer_path = config['hexamer_path']
+reduced_plot_path = config['reduced_plot_path']
+hic_link_path = config['hic_link_path']
+
+hextable_path = config['hextable_path']
+conda_tf = config['conda_tf']
+
+seq_type = config["seq_type"]
+collapsed = config["collapse_kmers"]
+
+contig_basename = contig_file.split("/")[-1]
+
+if assembler == "hifiasm":
+    sed_pattern = "rd:i:"
+elif assembler == "hifiasm-meta":
+    sed_pattern = "dp:f:"
+
+# Pipe either fasta or decompressed .fa.gz
+if (contig_basename[-2:] == "gz"):
+    piped_contig_file = "gunzip -c {}".format(contig_file)
+else:
+    piped_contig_file = "cat {}".format(contig_file)
+
+# Hack to rename .fa files to .fasta to make FastK work
+if (contig_basename[-2:] == "fa"):
+    contig_basename_mv = contig_basename + "sta"
+else:
+    contig_basename_mv = contig_basename
+
+
+# Add plot annotation fields depending on provided input
+def include_annots():
+    annot_fields = f"Hexamer FastK Unique_{k_unique}mers GC"
+    annot_files = f"data/{sample_id}.{seq_type}.density.hexsum data/{sample_id}.median_{k_long}mer.txt data/{sample_id}.{seq_type}.{k_unique}_mers.txt data/{sample_id}.{seq_type}.gc"
+    if contig_noseq != "None":
+        annot_fields += " Coverage"
+        annot_files += f" data/{sample_id}.{seq_type}.coverage.txt"
+    if (pair_file != "None"):
+        annot_fields += " Is_Connected Connections_Base"
+        annot_files += f" data/{sample_id}.is_connected.txt data/{sample_id}.is_connected.normbp.txt"
+    return annot_fields, annot_files
+
+
+
+# rules
+k = 4
+k_long = 60
+k_unique = 15 # 8 is default for reads
+
+# collapse k-mers and their reverse complement?
+if collapsed == "collapsed":
+    collapse_true = 1
+else:
+    collapse_true = 0
+
+base_out = "kmer_counts/{}/k_{}".format(seq_type, k)
+
+rule all:
+    input:
+        f"logs/{sample_id}.tetra.done",
+        f"logs/{sample_id}.gc.done",
+        f"logs/{sample_id}.density.done",
+        f"logs/{sample_id}.fastk.done",
+        f"{sample_id}.draw.cmd.txt",
+        f"logs/{sample_id}.unique.done",
+        f"data/{sample_id}.{seq_type}.coverage.txt" if (contig_noseq != "None") else [],
+        f"logs/{sample_id}.connections.done" if (pair_file != "None") else [], 
+        f"logs/{sample_id}.html.done",
+
+# Count contig tetranucleotides and store them in a .npy file
+# Also outputs a text file with all contig ids, which is needed for selection widget
+rule contig_tetra:
+    input:
+        {contig_file}
+    output:
+        f"logs/{sample_id}.tetra.done"
+    shell:
+        """
+        mkdir -p data
+        mkdir -p logs
+
+        {tetra_count_path} --file {contig_file} --collapse 1 --ids data/{sample_id}.{seq_type}.ids.txt --klength {k} --out data/{sample_id}.{seq_type}.tetra.{collapsed}.npy
+        touch logs/{sample_id}.tetra.done
+
+        """
+
+
+rule contig_gc:
+    input:
+        {contig_file}
+    output:
+        f"logs/{sample_id}.gc.done",
+    shell:
+        """
+        mkdir -p tmp
+
+         {tetra_count_path} --file {contig_file} --collapse 1 --ids tmp/{sample_id}.{seq_type}.ids.txt --klength 1 --out data/{sample_id}.{seq_type}.gc.npy; rm tmp/{sample_id}.{seq_type}.ids.txt
+         python -c \'import numpy as np; a = np.load(\"data/{sample_id}.{seq_type}.gc.npy\"); np.savetxt(\"data/{sample_id}.{seq_type}.gc\", (a/a.sum(axis=1)[:,None])[:,1])\'
+         touch logs/{sample_id}.gc.done
+
+         """
+
+# Calculate approximate coding density using a modified version of hexamer, which takes the sum of all putative coding windows divided by sequence length
+rule contig_hexsum:
+    input:
+        {contig_file}
+    output:
+        f"logs/{sample_id}.density.done"
+    shell:
+        """{piped_contig_file} | {hexamer_path} -T 20 -S {hextable_path} - | awk \'{{ print  $3/$2 }}\' > data/{sample_id}.{seq_type}.density.hexsum
+            touch logs/{sample_id}.density.done
+        """
+
+# Generate FastK profiles of 60-mers for contigs, then calculate the median 60-mer occurence across the whole set for each 60-mer in the contig
+# High scores may indicate repetitiveness in the case of contigs, or patchy assembly
+rule contig_fastk:
+    input:
+        {contig_file}
+    output:
+        f"logs/{sample_id}.fastk.done",
+    shell:
+        """
+        mkdir -p data/fastk/profile/
+        cp -n {contig_file} data/fastk/profile/{contig_basename_mv}
+
+        # make profile
+
+        {fastk_path}FastK -k{k_long} -p -T{cores} data/fastk/profile/{contig_basename_mv};
+        {fastk_path}ProfMedianAll data/fastk/profile/*prof > data/{sample_id}.median_{k_long}mer.txt
+        rm data/fastk/profile/{contig_basename_mv}
+        touch logs/{sample_id}.fastk.done
+        """
+
+# Calculates the number of distinct 15-mers observed in a sequence divided by length (does not canonicalize)
+rule contig_unique_kmers:
+    input:
+        {contig_file}
+    output:
+        f"logs/{sample_id}.unique.done"
+    shell:
+        """
+        {un_count_path} --klength {k_unique} --file {contig_file} --out data/{sample_id}.{seq_type}.{k_unique}_mers.txt
+        touch logs/{sample_id}.unique.done
+        """
+# Extracts hifiasm coverage estimate
+rule contig_coverage:
+    input:
+        {contig_noseq}
+    output:
+        "data/{}.{}.coverage.txt".format(sample_id, seq_type)
+    shell:
+        """grep \"S.*tg\" {contig_noseq} | sed -n \'s/.*{sed_pattern}\([0-9]\)/\\1/p\' > data/{sample_id}.{seq_type}.coverage.txt"""
+
+# If a pair file is provided, generate matrix of counts
+rule hic_scaffs:
+    input:
+        {pair_file}
+    output:
+        f"logs/{sample_id}.connections.done"
+    shell:
+        """
+        mkdir -p connections/logs
+        mkdir -p connections/npy
+        mkdir -p connections/is_connected
+
+        python {hic_link_path} --pairfile {pair_file} --sizefile {size_file} --outfile data/{sample_id}.connections.npy --outconn  data/{sample_id}.is_connected.txt --outconnbp data/{sample_id}.is_connected.normbp.txt
+        touch logs/{sample_id}.connections.done
+        """
+
+# TODO: Check for errors in output, e.g. empty files
+rule plot_umap_txt:
+    input:
+        {contig_file},
+        f"logs/{sample_id}.tetra.done",
+        f"logs/{sample_id}.gc.done",
+        f"logs/{sample_id}.density.done",
+        f"logs/{sample_id}.fastk.done",
+        f"logs/{sample_id}.unique.done",
+        f"data/{sample_id}.{seq_type}.coverage.txt" if (contig_noseq != "None") else [],
+        f"logs/{sample_id}.connections.done" if (pair_file != "None") else [], 
+    params:
+        annot = include_annots()
+    output:
+        "{}.draw.cmd.txt".format(sample_id)
+    shell: 
+        """
+        echo \"python {reduced_plot_path} --infile data/{sample_id}.{seq_type}.tetra.{collapsed}.npy --outfile {sample_id}_umap.html --seqidfile data/{sample_id}.{seq_type}.ids.txt \
+        --annotfiles \\"{params.annot[1]}\\" --annotnames \\"{params.annot[0]}\\" --speciesname {sample_id}\" > {sample_id}.draw.cmd.txt
+        """
+
+rule selection_plot:
+    input:
+        "{}.draw.cmd.txt".format(sample_id)
+    params:
+        annot = include_annots()
+    output:
+        touch("logs/{}.html.done".format(sample_id))
+    shell:
+        """
+        bash -c '
+        . $HOME/.bashrc # if not loaded automatically
+        conda activate {conda_tf}
+
+        python {reduced_plot_path} --pca F --outfile {sample_id}_{seq_type}_umap.html --seqtype {seq_type} --infile data/{sample_id}.{seq_type}.tetra.{collapsed}.npy --seqidfile data/{sample_id}.{seq_type}.ids.txt --annotfiles \"{params.annot[1]}\" --annotnames \"{params.annot[0]}\" --speciesname {sample_id}
+        
+        #PCA:
+        python {reduced_plot_path} --pca T --outfile {sample_id}_{seq_type}_pca.html --seqtype {seq_type} --infile data/{sample_id}.{seq_type}.tetra.{collapsed}.npy --seqidfile data/{sample_id}.{seq_type}.ids.txt --annotfiles \"{params.annot[1]}\" --annotnames \"{params.annot[0]}\" --speciesname {sample_id}
+        # GC vs coverage
+        if  [ "{contig_noseq}" != "None" ]; then python {reduced_plot_path} --pca T --outfile {sample_id}_{seq_type}_gc_cov.html --seqtype {seq_type} --infile data/{sample_id}.{seq_type}.tetra.{collapsed}.npy --seqidfile data/{sample_id}.{seq_type}.ids.txt --annotfiles \"{params.annot[1]}\" --annotnames \"{params.annot[0]}\" \
+        --speciesname {sample_id} --override_y data/{sample_id}.{seq_type}.coverage.txt --override_x data/{sample_id}.{seq_type}.gc --y_scale log; fi;
+        '
+        """
+        
+
