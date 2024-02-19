@@ -1,4 +1,4 @@
-name: /software/team301/user/cw21/conda/kmerviz
+name: kmerviz
 channels:
   - pyviz
   - conda-forge
@@ -250,4 +250,3 @@ dependencies:
     - tomlkit==0.11.4
     - wget==3.2
     - widgetsnbextension==4.0.3
-prefix: /software/team301/user/cw21/conda/kmerviz
