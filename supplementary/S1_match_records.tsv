@@ -1,0 +1,210 @@
+Sample	Mash_Screen	Curation	MarkerScan	read_VAE
+ilAbrTrip1	None	None	None	None
+ilAclEmar1	None	None	None	None
+ilAclSpar1	None	None	Trypanosomatidae	Leptomonas
+ilAcrAcer1	Enterococcus	Apibacter, proteobacteria	Orbaceae	Gilliamella apicola; Brenneria; Tatumella; Enterococcus; Apibacter
+ilAcrCons1	None		None	None
+ilAcrRepa1	Erwinia		None	Erwinia
+ilAglUrti1	None	None	None	None
+ilAgoAren1	Hafnia	None	None	Rahnella
+ilAgoHera1	None		None	None
+ilAgoSubp1	Enterococcus	None	None	Erwinia; Epichloe; Enterococcus
+ilAgrAura1	None	None	None	None
+ilAgrCirc1	None	None	None	None
+ilAgrGeni1	Wolbachia, microbacterium, Pantoea, Curtobacterium, Pseudomonas, Erwinia	Actinomycetia, Alphaproteobacteria, Caudoviricetes, Corynebacteriales, Enterobacterales, Gammaproteobacteria, Magnoliopsida, Micrococcales, Micromonosporales, Pseudomonadales, Rickettsiales, Streptomycetales	Microbacteriaceae, Erwiniaceae, Mermithidae	Wolbachia; Pantoea; Microbacterium; Curtobacterium; Pseudomonas; Erwinia; Lysobacter
+ilAgrMaci1	None	None	None	None
+ilAgrStra1	Wolbachia		Anaplasmataceae	Wolbachia; Nocardioides; Micromonospora
+ilAgrTris1	Wolbachia	Myoviridae	Anaplasmataceae	Wolbachia; Pseudomonas; Variovorax
+ilAllOxya1	None	None	None	None
+ilAmpBerb1	Enterococcus,lactococcus	Enterococcus, Streptococcus	None	Rahnella; Enterococcus; Lactococcus
+ilAmpTrag2	None	None	None	None
+ilAntCard3	None	None	None	None
+ilApaIris1	Wigglesworthia		None	Nocardioides
+ilApaMono1	Enterococcus, Pantoea	Enterobacterales, Glomerellales, Helotiales, Hypocreales, Kinetoplastida, Sordariales, Xylariales, Claviceps purpurea, Ascomycota, Euglenozoa, Nudiviridae	Hypocreales	Epichloe; Leptomonas; Chondromyces; Nocardioides; Mycolicibacterium; Pantoea; Enterococcus; Serratia
+ilApeSyri1	Wolbachia	Spiroplasmataceae, Polydnaviridae	Spiroplasmataceae	Spiroplasmataceae;  Firmicutes; Wolbachia
+ilAplEffo1	None	None		None
+ilApoBetu1	Wolbachia, Rahnella	Proteobacteria,Betaproteobacteria,Gammaproteobacteria,Alphaproteobacteria	Anaplasmataceae, Acetobacteraceae	Wolbachia; Rahnella; Klebsiella
+ilApoCrat1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilApoLuen1	None	None	None	None
+ilApoTurb1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilArcPodn1	Wolbachia		Anaplasmataceae	Wolbachia
+ilArcXylo1	Enterococcus, Rahnella		Yersiniaceae	Rahnella; Enterococcus
+ilArgGoed1	None		Erwiniaceae	None
+ilAriAges1	Wolbachia, Saccharibacter floricola	 Cedecea neteri, Wolbachia, Gluconobacter, Adelina	Anaplasmataceae, Acetobacteraceae, Enterobacteraceae, Adeleorina	Wolbachia; Gluconobacter; Enterobacter; Methanosphaera; Parasaccharibacter apium; Cyclospora
+ilAriAges2	None	None		None
+ilAteCent1	None	None	None	None
+ilAutGamm1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilAutPulc1	None	None	None	None
+ilBemIchn1	None	None	None	None
+ilBisBetu1	None	None	None	Leptothrix
+ilBlaAdus2	Enterococcus	Ascomycota, Acetobacteraceae, Firmicutes	Saccharomycetales, Acetobacteraceae	Enterococcus; Fungi; Parasaccharibacter, Ralstonia; Candida
+ilBlaLact1	None	Erwinia, Nosema	Erwiniaceae, Nosematidae	Nosema; Erwinia
+ilBolSele5	None	None	None	None
+ilCalPalu1	Wolbachia	Alphaproteobacteria	Anaplasmataceae	Wolbachia
+ilCamBiln1	Wolbachia, Enterococcus, Erwinia		Anaplasmataceae,Erwiniaceae	Wolbachia; Erwinia; Botrytis; Mycolicibacterium; Enterococcus
+ilCamMarg1	Wolbachia, Pseudomonas, Enterococcus, Gluconobacter, Rahnella, Erwinia	Sphingobacteriales,Enterobacterales,Flavobacteriales,Rickettsiales,Pseudomonadales	Anaplasmataceae, Debaryomycetaceae, Weeksellaceae, Pseudomonadaceae, Yersiniaceae	Wolbachia; Rahnella;  Pseudomonas; Empedobacter; Leptomonas; Enterobacter; Sphingomonas; Nocardioides; Empedobacter
+ilCarClav1	Asaia	Rickettsia, Erwinia, Asaia, Metaseiulus, viridiplantae	Erwiniaceae, Coxiellaceae, Dermanyssidae	Asaia, Variovorax, Acidiphilium, Metaseiulus
+ilCarKade1	Serratia, Asaia, Enterococcus	euglenozoa, firmicutes, gamma proteobacteria	Trypanosomatidae	Leptomonas, Serratia, Rhodococcus; Lactococcus; Enterococcus
+ilCarQuer1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilCatFrax1	None	None		None
+ilCatPine1	Wolbachia		Anaplasmataceae	Wolbachia
+ilCelArgi3	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilChlSite2	None	None	None	None
+ilChlVata1	Erwinia, Wolbachia	None	None	Penicillium; Tatumella; Erwinia
+ilChrCulm1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilCloCurt1	None	None	None	None
+ilColCroc2	Wolbachia	Wolbachia, Spiroplasma	Anaplasmataceae, Spiroplasmataceae	Spiroplasma , Wolbachia
+ilColPect1	None		None	None
+ilCosTrap1	Mesoplasma seiffertii, Rahnella	Rahnella aquatilis	Yersiniaceae	Cupriavidus, Rahnella
+ilCraLigu1	Wolbachia	None	None	Sphingomonas
+ilCroElin1	None		None	None
+ilCupMini1	None		None	None
+ilCyaSemi1	Asaia, Rahnella	Acetobacteraceae, viridiplantae, Rahnella aquatilis, Cladosporium	Yersiniaceae	Rahnella; Asaia, Pseudomonas, Enterococcus, Clavispora lusitaniae, Sphingomonas
+ilCydFagi1	None	None	None	None
+ilCydSple1	Wolbachia	None	Anaplasmataceae	Wolbachia
+ilDeiPorc1	None	None	None	Usitatibacter
+ilDiaChry1	None	None	None	None
+ilDiaRubi1	None	None	None	None
+ilDitAngu1	None	None	Rickettsiaceae	Rickettsia
+ilDryErem1	None	None	None	None
+ilEclSila1	Carnobacterium	None	None	Marmoricola
+ilEctCrep1	None		None	None
+ilEilDepe1	None	viridiplantae	Ranunculaceae	viridiplantae
+ilEilSoro1	Erwinia, Rahnella	Enterobacterales, Yersiniaceae, Erwiniaceae	Yersiniaceae	Rahnella; Lonsdalea britannica; Erwinia
+ilEmmMono1	Wolbachia	Caudoviricetes	Anaplasmataceae	Wolbachia
+ilEndFlam1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilEnnFusc2	None	None	None	None
+ilEnnQuei1	None	None	None	None
+ilEpaGrot1	Wolbachia		Anaplasmataceae	Wolbachia
+ilEpiAlte1	Wolbachia, Pantoea, Hafnia, Enterococcus		Anaplasmataceae	Wolbachia, Rahnella, Enterococcus, Nocardioides houyundeii, Leptomonas, Sphingomonas, Hafnia
+ilEpiBrun1	Erwinia, Rahnella		Yersiniaceae, Erwiniaceae	Erwinia; Rahnella
+ilEraDefo1	None	Acinetobacter	Moraxellaceae	Acinetobacter
+ilEreAeth1	None		Pseudomonadaceae, Enterobacterales	None
+ilEreAeth2	Pseudomonas, Asaia	Enterobacterales,Pseudomonadales,Trichinellida,Caudoviricetes		Pantoea; Citrobacter; Klebsiella; Erwinia; Pseudomonas; Microbacterium; Asaia
+ilEreLige1	Wolbachia, Asaia	Wolbachia	Anaplasmataceae, Nosematidae	Viridiplantae; Nosema, Asaia, Wolbachia
+ilEryTage1	Wolbachia, Asaia	Acetobacteraceae, viridiplantae, Asaia	Anaplasmataceae	Wolbachia; Gluconacetobacter, Asaia, Homo, Actinomyces, Bradyrhizobium
+ilEucCamp1	None		None	None
+ilEucCana1	Wolbachia		Anaplasmataceae	Wolbachia
+ilEulPrun1	Enterococcus, Erwinia, Serratia	Enterobacteriaceae, Erwiniaceae, Morganellaceae, Yersiniaceae	Enterococcaceae, Yersiniaceae	Rahnella; Serratia; Pseudomonas, Enterococcus; Enterobacteriaceae; Erwinia
+ilEupAuri1	Wolbachia, Wigglesworthia	Wolbachia	Anaplasmataceae	Wolbachia; Wolbachia phage WO
+ilEupCent1	None	None	None	Spiroplasma; Bradyrhizobium
+ilEupLuci1	Enterococcus, Serratia	Proteobacteria,Firmicutes	Enterococcaceae,Yersiniaceae	Serratia; Enterococcus; Leptomonas
+ilEupSimi1	Sphingomonas	None	None	Sphingomonas
+ilEupTran1	Malus domestica	None	None	Conexibacter; Rhodococcus; Zymoseptoria tritici; Nocardioides
+ilEupTrip1	Wolbachia		Anaplasmataceae, Pentapetalae	Wolbachia
+ilFabAdip1	Asaia, Wigglesworthia	Asaia	None	Asaia; Ensifer adhaerens
+ilFurFurc1	None	None	None	None
+ilGlaAlex1	None	None	None	Pinus taeda
+ilGriApri1	None	None	None	Frigoribacterium; Microbacterium, Hymenobacter
+ilGymRufi1	None	None	None	None
+ilHabPyri1	Vavraia	None	None	Gluconobacter; Vavraia
+ilHamLuci1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilHecDyso1	None	None	None	None
+ilHedSali1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilHesComm1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilHydFurc1	Erwinia, Rahnella	Yersiniaceae, Erwiniaceae, Enterobacteriaceae, Podovirus	Yersiniaceae	Erwinia; Rahnella; Enterobacter
+ilHydMica1	None	None	None	None
+ilHylFasc1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilHypProb1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia; Sphingomonas
+ilIdaAver1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilLaoPopu1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilLasFlex1	Pantoea	None	None	Pantoea
+ilLasMege1	None	Nosema	Nosematidae	Nosema
+ilLepSina1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilLimCami1	None	None	None	Rhodospirillales
+ilLobHalt1	Carnobacterium	None	None	Carnobacterium
+ilLupTest1	None	None	None	Curtobacterium; Methylobacterium
+ilLycPhla1	Wolbachia, Asaia	Acetobacteraceae, viridiplantae, Wolbachia	Anaplasmataceae, Acetobacteraceae	Asaia; Wolbachia; Homo sapiens
+ilLymMona1	None	None	None	None
+ilLysBell1	None	None	None	None
+ilLysCori1	None	None	None	None
+ilMacNota1	None	None	None	None
+ilMamBras1	None	None	None	None
+ilManJurt1	Asaia	Acetobacteraceae, viridiplantae	Acetobacteraceae	Asaia; Sphingomonas
+ilManJurt4	Asaia, Enterococcus, Serratia, Moellerella	Acetobacteraceae, viridiplantae	Acetobacteraceae	Asaia, Stenotrophomonas, Serratia; Enterococcus; Providencia rettgeri; viridiplantae
+ilMarLuna1	None	None	None	None
+ilMegAlbu1	None	None	None	None
+ilMelAtha1	None	None	None	Ascochyta rabiei
+ilMelCinx1	None	None	None	None
+ilMelGala1	Wolbachia	Wolbachia	Anaplasmataceae, Spiroplasmataceae	Wolbachia
+ilMelGala2	Wolbachia, Spiroplasma	Rickettsiales,Entomoplasmatales,Flavobacteriales		Wolbachia; Spiroplasma
+ilMesFuru1	None	None	None	None
+ilMimTili1	None	None	None	Rhodococcus
+ilMytAlbi1	None	None	None	None
+ilMytFerr1	Enterococcus, Moellerella	Enterococcus	None	Enterococcus; Rahnella; Variovorax
+ilMytImpu1	None	Microsporidia	Nosematidae	Nosema
+ilNeoMoll1	None		None	None
+ilNocCome1	None		None	Allokutzneria
+ilNocFimb1	Sphingomonas	None	None	Sphingomonas
+ilNocJant1	None	None	None	None
+ilNocPron1	None	None	None	None
+ilNotDrom1	None	None	None	None
+ilNotUddm1	Lonsdalea, Rahnella	Rahnella aquatilis, Lonsdalea britannica, Dickeya zeae	Yersiniaceae, Pectobacteriaceae	Rahnella; Dickeya; Lonsdalea; Sodalis; Cutibacterium
+ilNotZicz1	None	None	None	None
+ilNymPoly1	Wolbachia		None	None
+ilOchPlec1	None		None	None
+ilOchSylv3	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilOmpLuno1	None	None	None	Propionibacterium
+ilOpeBrum1	None	None	None	Actinobacteria
+ilOpiLute1	Wolbachia, Enterococcus	Wolbachia	Anaplasmataceae, Debaryomycetaceae	Wolbachia; Scheffersomyces
+ilOrgAnti1	Wolbachia, Enterobacter, Acinetobacter	Caudoviricetes,Enterobacterales,Pseudomonadales,Rickettsiales,Burkholderiales	Anaplasmataceae,Enterobacteriaceae	Enterobacter; Wolbachia; Brevibacterium
+ilOrgAnti2	Wolbachia, Enterobacter, Acinetobacter, Enterococcus			Wolbachia; Wolbachia; Nocardioides; Lasiodiplodia
+ilOstNubi1	Carnobacterium		None	None
+ilPamFasc1	Wolbachia, Commensalibacter	Wolbachia	Anaplasmataceae	Wolbachia
+ilPanCinn1	Wolbachia	Anaplasmataceae	Anaplasmataceae	Wolbachia
+ilPanCory1	Wolbachia		Anaplasmataceae	Wolbachia
+ilPapMach1	None	None	None	Mesorhizobium
+ilParAegt1	Wolbachia	Wolbachia, microsporidia	Anaplasmataceae	Wolbachia; Encephalitozoon
+ilParStra1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilPerAlce1	None	None	None	Erwinia
+ilPerFlao1	None		None	Streptomyces
+ilPerRhom1	Serratia, Moellerella, Enterococcus, Carnobacterium, Erwinia	Enterobacteriaceae, Erwiniaceae, Morganellaceae, Pectobacteriaceae, Yersiniaceae	Yersiniaceae, Erwiniaceae	Serratia; Leptomonas; Pantoea; Enterobacter; Ewingella; Carnobacterium, Streptomyces, Enterococcus
+ilPhaBuce1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilPheGnom1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia; Mesorhizobium; Gemmata
+ilPheTrem1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia; Rhodospirillales; Tsukamurella
+ilPhiVetu1	None	None	None	Conexibacter
+ilPhlMeti2	None	None	None	None
+ilPhoMini1	Pseudomonas, Erwinia		Erwiniaceae	Pseudomonas; Erwinia
+ilPhrFuli1	None	None	None	Gordonia
+ilPieBrab1	None	None	None	Bradyrhizobium
+ilPieNapi1	None	None	None	Mesorhizobium
+ilPieNapi4	None	None	None	Actinomyces
+ilPieRapa1	None	None	None	Sphingomonas
+ilPleArgu1	Acinetobacter	None	None	Actinomyces
+ilPluXylo3	Plutella xylostella	None	None	Ralstonia
+ilPolCalb1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilPolIcar1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilPsoGibb1	None		None	Streptomyces
+ilPtiCapc1	None	None	None	None
+ilPtyAeri1	None		None	None
+ilPyrMalv3	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilRhoNaev1	Wolbachia		Anaplasmataceae, Marchantiidae	Marchantia; Wolbachia; Nocardioides; Mycobacterium
+ilSchCost1	None	None	None	None
+ilScoChen1	Enterococcus, Asaia, Pantoea		Acetobacteraceae,Enterococcaceae,Metschnikowiaceae	Enterococcus; Pseudomonas; Erwinia; Asaia; Metschnikowiaceae
+ilSelDent1	None	None	None	None
+ilSesApif2	None	None	None	None
+ilSphPina1	Pseudomonas, Rahnella	Caudoviricetes, bacilli, gamma proteobacteria	Pseudomonadaceae, Yersiniaceae	Rahnella; Pseudomonas
+ilSpiLubr1	None	None	None	Aspergillus
+ilSpiLutu1	None	None	None	Pseudonocardia
+ilSynVesp1	None	None	None	Zymobacter
+ilThuSene1	Carnobacterium		None	Dietzia; Sphingomonas; Exophiala; Carnobacterium
+ilThyBati1	None	None	None	None
+ilThyLine1	Asaia, Saccharibacter	Acetobacteraceae, viridiplantae	Acetobacteraceae	Asaia; Gluconobacter
+ilThySylv1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia
+ilTinSemi1	None	None	None	None
+ilTinTrin1	None	None	None	None
+ilUdePrun1	None		Nosematidae	Nosema
+ilVanAtal1	None	None	None	None
+ilVanCard2	None	None	None	None
+ilWatBina1	Wolbachia, Pantoea, Rahnella	Enterobacterales,Rickettsiales	Anaplasmataceae, Yersiniaceae	Wolbachia, Rahnella; Xanthomonas; Enterococcus; Pantoea
+ilXanFluc1	None		None	None
+ilXesCnig1	Wolbachia	Alphaproteobacteria	Anaplasmataceae	Wolbachia
+ilXesXant1	None	None	None	Rhodococcus
+ilYpoPlub1	Wolbachia	Wolbachia	Anaplasmataceae	Wolbachia; Rhodococcus
+ilYpoSedl1	None	None	None	None
+ilYpsScab1	None	None	None	None
+ilYpsSequ1	None		None	None
+ilYpsSequ2	None	None	None	Cutibacterium
+ilZeiIser1	Erwinia, Lonsdalea		Spiroplasmataceae	Spiroplasma; Erwinia; Lonsdalea
+ilZeuPyri1	None	None	None	None
+ilZygFili1	Carnobacterium		None	Metschnikowiaceae; Carnobacterium; Pantoea
