@@ -87,6 +87,21 @@ python ./VAE/vae_draw.py --zfile ${outdir}/sampleid.vae.out.2d.0 --outdir ${outd
 ```
 
 ## Notes
+### Known issues
+You may encounter an error similar to "_Neither firefox and geckodriver nor a variant of chromium browser and chromedriver are available on system PATH_") when running any of the scripts that produce plots of the latent space. In some cases, the error may be misleading, and indicate that the installed version of the webdriver is incompatible with an older version of the Bokeh plotting library. Installing a different version or identifying an appropriate driver ought to remedy this.
+
+A less elegant solution is to comment out the lines in `create_firefox_webdriver()` in `bokeh/io/webdriver.py` that cause the problem, for example:
+
+```
+return webdriver.Firefox(  # type: ignore [attr-defined]
+        options=options,
+        #firefox_binary=binary,
+        #executable_path=geckodriver,
+        #service_log_path=devnull,
+    )
+```
+Another workaround is to save the plots as html rather than png (Bokeh stores png files by taking a screenshot of the image rendered by a browser). This will, however, result in larger output files.
+
 ### Very large data sets
 For an initial glance at a dataset, switching off the CB correction, increasing the batch size, and reducing the number of epochs can speed up VAE training (see [here](https://github.com/CobiontID/read_VAE/tree/main/read_tools/VAE)).
 
