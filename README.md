@@ -5,7 +5,7 @@ In many cases, samples of target organisms collected in the wild contain sequenc
 
 Learning two-dimensional embeddings of sequence composition (in this case tetranucleotide counts) with a Variational Autoencoder (VAE) provides a framework to visually explore long-read datasets and detect contaminants or organisms interacting with the target. Sequence characteristics, such as estimated coding density and approximate read coverage, provide additional clues about the contents of the sample. For example, even without taxonomic labels, a microbe could be distinguished from an insect based on its higher density of coding sequences.
 
-A preprint describing the approach in detail is in preparation. In addition to the VAE-based workflow for reads, the repository includes some tools to assess sequence assemblies. The documentation in this repository is currently still under construction.
+A preprint describing the approach in detail is available here: https://www.biorxiv.org/content/10.1101/2024.05.30.596622v1. In addition to the VAE-based workflow for reads, the repository includes some tools to assess sequence assemblies. The documentation in this repository is currently still under construction.
 
 ## Workflows
 ### <a href="https://github.com/CobiontID/read_VAE/tree/main/read_tools">Read k-mer decomposition and visualisation</a>
@@ -53,3 +53,6 @@ https://github.com/richarddurbin/hexamer (to extract the estimated density, pipe
 
 #### [fastk-medians](https://github.com/CobiontID/fastk-medians)
 Calculates the median number of times each k-mer of size k (in this case k = 31) occurs across the whole set of sequences. Provides an approximation of coverage for reads (provided they are not highly repetitive), or repetitiveness for assembled contigs or scaffolds.
+
+## Citation
+If you use any of the code in this repository, please cite https://www.biorxiv.org/content/10.1101/2024.05.30.596622v1
