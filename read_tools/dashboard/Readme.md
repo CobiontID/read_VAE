@@ -1,10 +1,16 @@
 # Read VAE dashboard
 
-To explore the structure of a given readset, interactively filtering the data and cross-referencing different sequence features and taxonomic labels can be useful. The selection tool allows sequences of interest to be retrieved and blasted, and statistics for the selection may be displayed and downloaded. A demo for an example dataset is available [here](https://huggingface.co/spaces/cc7740/read_VAE) (screenshots below).
+To explore the structure of a given readset, interactively filtering the data and cross-referencing different sequence features and taxonomic labels can be useful. The selection tool allows sequences of interest to be retrieved and blasted, and statistics for the selection may be displayed and downloaded.
+
+## Example (screen recording)
+
+<img src="https://github.com/CobiontID/read_VAE/raw/main/read_tools/dashboard/screen.apng" width=600>
+
+## Interactive demo
+A working demo for an example dataset is available [here](https://huggingface.co/spaces/cc7740/read_VAE) (screenshots below).
 
 <img src="https://github.com/CobiontID/read_VAE/assets/10507101/42d5a687-4af4-4900-9843-e1b597856c17" width=600><br>
 <img src="https://github.com/CobiontID/read_VAE/assets/10507101/1d3005f0-3654-438c-b9cf-5e00155e8b60f" width=600>
-
 
 See https://cobiontid.github.io/reads.html for more details and a walkthrough of the example.
 
