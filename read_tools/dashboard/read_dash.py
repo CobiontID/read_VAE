@@ -191,6 +191,8 @@ class Scatter(param.Parameterized):
     num_bins = param.Integer(5, bounds=(1, 10), doc="Select number of quantile bins for coding density (hex).", label="Number of bins")
     upper = param.Integer(32767, doc="Maximum k-mer coverage to display.", label="Max k-mer coverage")
     lower = param.Integer(0, doc="Minimum k-mer coverage to display.", label="Min k-mer coverage")
+    lim_upper_hist = param.Integer(10000, bounds=(2,32767), label="Coverage hist max")
+    lim_lower_hist = param.Integer(1, bounds=(1, 32766), label="Coverage hist min")
     bg = param.Selector(["white", "grey", "black"], doc="Select the background colour for the plot.", label="Background colour")
     show_class = param.ListSelector(default=[], objects=[], label='Select classes')
     color_cat = param.Selector(["glasbey_hv", "colorblind_bokeh", "tol_rainbow"], label='Categorical colour scheme')
@@ -238,14 +240,18 @@ class Scatter(param.Parameterized):
             if self.n_classes > 9:
                 self.param.color_cat.objects = ["glasbey_hv", "tol_rainbow"]
 
-    @pn.depends('action')
+        #self.colors_classes = self.colormap_classes()
+
+    @pn.depends('action', 'lim_upper_hist', 'lim_lower_hist')
     def hist_coverage(self):
+        #lim_lower_hist = 1
+        #lim_upper_hist = 15000
         if () in self.dmap.data:
             max_val = self.dmap.data[()]["fastk"].max()
             min_val = self.dmap.data[()]["fastk"].min()
-            h_counts, h_bins = np.histogram(self.dmap.data[()]["fastk"], bins=min(50,  max_val-min_val), range=(max(1, min_val),min(10000, max_val)))
+            h_counts, h_bins = np.histogram(self.dmap.data[()]["fastk"], bins=min(50,  max_val-min_val), range=(max(self.lim_lower_hist, min_val),min(self.lim_upper_hist, max_val)))
         else:
-            h_counts, h_bins = np.histogram(self.df["fastk"], bins=50, range=(1,10000))
+            h_counts, h_bins = np.histogram(self.df["fastk"], bins=50, range=(self.lim_lower_hist, self.lim_upper_hist))
         return hv.Histogram((np.log1p(h_counts), h_bins)).opts(width=600, height=150, shared_axes=False, ylabel="log(Frequency)", xlabel="fastk")
     
     @pn.depends('action')
@@ -260,6 +266,11 @@ class Scatter(param.Parameterized):
         else:
             h_counts, h_bins = np.histogram(self.df["hex"], bins=50)
             return hv.Histogram((np.log1p(h_counts), h_bins)).opts(width=600, height=150, shared_axes=False, ylabel="log(Frequency)", xlabel="hexamer")
+    
+    @pn.cache
+    def jitter(self, series):
+        eps = np.finfo(np.float32).eps
+        return (series + np.random.uniform(eps, 2*eps, len(series))).astype("float32")
 
     #@pn.depends('num_bins', watch=True)
     def make_bins(self, num_bins):
@@ -268,7 +279,7 @@ class Scatter(param.Parameterized):
         if self.df_complete['hex'].min() == self.df_complete['hex'].max():
             self.df_complete['bin'] = 0
         else:
-            bins = pd.Categorical(pd.qcut(self.df_complete['hex'], num_bins, labels=False, duplicates='drop'))
+            bins = pd.Categorical(pd.qcut(self.jitter(self.df_complete['hex']), num_bins, labels=False, duplicates='drop'))
             self.df_complete['bin'] = bins
         self.df = self.filter_df()
         return self.df
@@ -307,6 +318,7 @@ class Scatter(param.Parameterized):
                 [f"class {i}" for i in range(self.n_classes)],
             )
         )
+        #self.colors_classes = colors_hex
         return colors_hex, legend_labels
           
     @pn.depends('num_bins', 'upper', 'lower', 'show_class')
@@ -380,7 +392,7 @@ def blast_function():
     This function sends the retrieved fasta record to send the query to a local server, and returns the first five lines of the output.
     To use a different setup, simply modify "blast_cmd" in the line below.
     """
-    blast_cmd = "timeout 300s curl -T temp.fa http://172.27.25.136:35227 | head -n5"
+    blast_cmd = "timeout 300s curl -T temp.fa http://172.27.19.85:35227 | head -n5"
     blast = subprocess.run(blast_cmd, capture_output=True, shell=True)
     if blast.returncode == 0:
         return '{0}'.format(blast.stdout.decode('utf-8'))
@@ -445,7 +457,7 @@ def make_panel(scatter, fasta):
 
     button_blast = pn.widgets.Button(
         name='blastn selected sequence', button_type='primary')
-    
+
     button_seq = pn.widgets.Button(name="Get sequence", button_type="primary")
 
     blast_pane = pn.pane.HTML("""Do megablast""", style={'background-color': '#fcfcfc', 'border': '1px solid black',
@@ -472,7 +484,7 @@ def make_panel(scatter, fasta):
                         ('Classes', scatter.draw_scatter_table_classes), dynamic=True)
         else:
             tabs = pn.Tabs(('Hexamer', scatter.draw_scatter_table))
-        
+
         # Widgets for blast, displaying sequence 
         widgets_read_selection = pn.WidgetBox(pn.Row(text_readid), pn.Row(button_readid), pn.Row(pn.widgets.StaticText(
             name='Note', value='Click to update after drawing new selection')), pn.Row(button_seq), pn.Row(button_find), pn.Row(coord))
@@ -493,13 +505,14 @@ def make_panel(scatter, fasta):
                                     'Background colour', pn.widgets.RadioButtonGroup.from_param(
                                         scatter.param.bg, name="Background colour"),
                                     )
-        
+
         # Add elements to right column, depending on available annotations
-        right_col = pn.Column(scatter.dmap)
+        right_col = pn.Column(pn.WidgetBox(scatter.dmap))
         # Add histograms
         if plain_scatter != "True":
-            for el in [scatter.hist_coverage, scatter.hist_hexamer, scatter.param.action]:
-                right_col.append(el)
+            #for el in [scatter.hist_coverage, scatter.hist_hexamer,  scatter.param.lim_lower_hist, scatter.param.lim_upper_hist, scatter.param.action]:
+            #    right_col.append(el)
+            right_col.append(pn.WidgetBox(scatter.hist_coverage, scatter.hist_hexamer,  scatter.param.lim_lower_hist, scatter.param.lim_upper_hist, scatter.param.action, name="Histograms"))
         else:
             scatter.param.num_bins.constant = True
             scatter.param.upper.constant = True
@@ -507,8 +520,14 @@ def make_panel(scatter, fasta):
 
         # Add widgets to filter by class
         if scatter.n_classes > 1:
-            param_layout_classes = pn.WidgetBox(
-                    "Filter classified sequences", scatter.param.color_cat, multi_select, width=600)
+            #def cell_bg(s):
+            #    return [ f'background-color: {col}' for col in scatter.colors_classes[:scatter.n_classes-1] ]
+            all_cats = ["Unclassified"] + [i.split("/")[-1] for i in class_lists] if scatter.n_classes -1 == len(class_lists) else ["Unclassified"] + [i.split("/")[-1] for i in class_lists] + ["Multiple"]
+            class_key = pn.widgets.Tabulator(pd.DataFrame({'list': all_cats}, index=range(len(all_cats))))
+            #class_key.style.apply(cell_bg)
+
+            param_layout_classes = pn.Accordion(pn.WidgetBox(
+                    "Filter classified sequences", scatter.param.color_cat, multi_select, class_key, width=600, name="Filter classes"))
             right_col.append(param_layout_classes)
 
 
