@@ -251,11 +251,12 @@ rule coloured_plots:
 	    #sleep 30
         #bwait -w \"ended(\'{params.jobhash_vae}\')\"
         bsub -G team301-grp -R "span[hosts=1] select[mem>4000] rusage[mem=4000]" -M4000 -q normal -o vae/logs/{sample_id}.plots.out -e vae/logs/{sample_id}.plots.err \
-        python {cat_labeller_path} --feature density/{seq_type}/{sample_id}.{seq_type}.hexsum --labelled vae/{sample_id}/hexsum.binned.{sample_id} --n 10;\
-        python {cat_labeller_path} --feature fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt --labelled vae/{sample_id}/{k_long}mer.binned.{sample_id} --n 10;\
-        python {cat_labeller_path} --feature unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt --labelled vae/{sample_id}/{k_unique}mer.binned.{sample_id} --n 10;\
-        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_{k_long}mer --labels vae/{sample_id}/{k_long}mer.binned.{sample_id} --edges vae/{sample_id}/{k_long}mer.binned.{sample_id}.edges --legend_y_label \"Median {k_long}-mer count\";\
-        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_hexamer --labels vae/{sample_id}/hexsum.binned.{sample_id} --edges vae/{sample_id}/hexsum.binned.{sample_id}.edges --legend_y_label \"Hexamer";\
-        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_8mer --labels vae/{sample_id}/{k_unique}mer.binned.{sample_id} --edges vae/{sample_id}/{k_unique}mer.binned.{sample_id}.edges --legend_y_label \"Unique {k_unique}-mers/base\";\
+        "python {cat_labeller_path} --feature density/{seq_type}/{sample_id}.{seq_type}.hexsum --labelled vae/{sample_id}/hexsum.binned.{sample_id} --n 10 && \
+        python {cat_labeller_path} --feature fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt --labelled vae/{sample_id}/{k_long}mer.binned.{sample_id} --n 10 && \
+        python {cat_labeller_path} --feature unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt --labelled vae/{sample_id}/{k_unique}mer.binned.{sample_id} --n 10 && \
+        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_{k_long}mer --labels vae/{sample_id}/{k_long}mer.binned.{sample_id} --edges vae/{sample_id}/{k_long}mer.binned.{sample_id}.edges --legend_y_label \"Median {k_long}-mer count\" && \
+        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_hexamer --labels vae/{sample_id}/hexsum.binned.{sample_id} --edges vae/{sample_id}/hexsum.binned.{sample_id}.edges --legend_y_label \"Hexamer" && \
+        python {draw_vae_path} --zfile vae/{sample_id}/{sample_id}.vae.out.2d.0 --outdir vae/{sample_id}/ --fignames {sample_id}_8mer --labels vae/{sample_id}/{k_unique}mer.binned.{sample_id} --edges vae/{sample_id}/{k_unique}mer.binned.{sample_id}.edges --legend_y_label \"Unique {k_unique}-mers/base\" \
+        "
         '
         """
