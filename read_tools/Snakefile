@@ -216,7 +216,7 @@ rule run_vae_tetra:
         mkdir -p vae/logs
         arr_size=$(wc -c {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy | awk '"'"'{{print $1/1000000}}'"'"')
         echo "Count array size: $arr_size MB"
-        bsub -G team301-grp -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal -o vae/logs/{sample_id}.out -e vae/logs/{sample_id}.err -J\"{params.jobhash}\" \
+        bsub -G {user_group} -R "span[hosts=1] select[mem>18000] rusage[mem=18000]" -M18000 -q normal -o vae/logs/{sample_id}.out -e vae/logs/{sample_id}.err -J\"{params.jobhash}\" \
         python {vae_path} --countfile {base_out}/{collapsed}/counts/{sample_id}.{seq_type}.tetra.{collapsed}.npy --fignames {sample_id} --kl 0.0025 --epochs 15 --outdir vae/{sample_id}/
         echo "submitted VAE as {params.jobhash}"
 	    sleep 30
@@ -250,7 +250,7 @@ rule coloured_plots:
         conda activate {conda_tf}
 	    #sleep 30
         #bwait -w \"ended(\'{params.jobhash_vae}\')\"
-        bsub -G team301-grp -R "span[hosts=1] select[mem>4000] rusage[mem=4000]" -M4000 -q normal -o vae/logs/{sample_id}.plots.out -e vae/logs/{sample_id}.plots.err \
+        bsub -G {user_group} -R "span[hosts=1] select[mem>4000] rusage[mem=4000]" -M4000 -q normal -o vae/logs/{sample_id}.plots.out -e vae/logs/{sample_id}.plots.err \
         "python {cat_labeller_path} --feature density/{seq_type}/{sample_id}.{seq_type}.hexsum --labelled vae/{sample_id}/hexsum.binned.{sample_id} --n 10 && \
         python {cat_labeller_path} --feature fastk/{seq_type}/k_{k_long}/medians/{sample_id}.median_{k_long}mer.txt --labelled vae/{sample_id}/{k_long}mer.binned.{sample_id} --n 10 && \
         python {cat_labeller_path} --feature unique_kmers/{seq_type}/k_{k_unique}/{sample_id}.{k_unique}_mers.txt --labelled vae/{sample_id}/{k_unique}mer.binned.{sample_id} --n 10 && \
