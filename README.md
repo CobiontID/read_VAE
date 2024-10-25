@@ -55,4 +55,4 @@ https://github.com/richarddurbin/hexamer (to extract the estimated density, pipe
 Calculates the median number of times each k-mer of size k (in this case k = 31) occurs across the whole set of sequences. Provides an approximation of coverage for reads (provided they are not highly repetitive), or repetitiveness for assembled contigs or scaffolds.
 
 ## Citation
-If you use any of the code in this repository, please cite https://www.biorxiv.org/content/10.1101/2024.05.30.596622v1
+If you use any of the code in this repository, please cite: Weber CC, 2024. _Disentangling cobionts and contamination in long-read genomic data using sequence composition_. G3 Genes \| Genomes \| Genetics, https://doi.org/10.1093/g3journal/jkae187
