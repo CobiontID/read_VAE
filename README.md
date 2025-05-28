@@ -27,7 +27,7 @@ As with the reads, tallies and reduces tetranucleotide composition to two dimens
 
 ## Tools
 
-### <a href="https://github.com/CobiontID/read_VAE/tree/main/contig_tools/VAE">Variational Autoencoder for k-mer decomposition</a>
+### <a href="https://github.com/CobiontID/read_VAE/tree/main/read_tools/">Variational Autoencoder for k-mer decomposition</a>
 #### [vae.py](https://github.com/CobiontID/read_VAE/tree/main/read_tools/VAE)
 Read k-mer counts are reduced to two dimensions following the method of <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>. Outputs two-dimensional representation of the read set and a basic plot.
 
